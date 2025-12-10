@@ -63,7 +63,7 @@
                         <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
                             <code style="color: var(--secondary-color); font-size: 1.1rem;" id="connectString">roejin.com:7775</code>
                         </div>
-                        <button class="btn btn-primary" onclick="copyToClipboard('connectString')">Copy Connection String</button>
+                        <button class="btn btn-primary" onclick="copyToClipboard('connectString', event)">Copy Connection String</button>
                         <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.85rem; font-style: italic;">
                             Paste this into Conan Exiles' Direct Connect field
                         </p>
@@ -73,10 +73,16 @@
                         <h3>Connection Details</h3>
                         <ul class="server-details">
                             <li>
+                                <strong>Server Status:</strong>
+                                <span>
+                                    <span id="serverStatus" class="server-status offline">Checking...</span>
+                                </span>
+                            </li>
+                            <li>
                                 <strong>Server Address:</strong>
                                 <span>
                                     <code id="serverIP">roejin.com:7775</code>
-                                    <button class="copy-btn" onclick="copyToClipboard('serverIP')">Copy</button>
+                                    <button class="copy-btn" onclick="copyToClipboard('serverIP', event)">Copy</button>
                                 </span>
                             </li>
                             <li>
@@ -143,25 +149,173 @@
     <script src="mock-data.js"></script>
     <script src="dev-mode.js"></script>
     <script>
-        function copyToClipboard(elementId) {
+        function copyToClipboard(elementId, event) {
             const element = document.getElementById(elementId);
-            const text = element.textContent.trim();
+            if (!element) {
+                console.error('Element not found:', elementId);
+                return;
+            }
             
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                btn.style.background = 'rgba(0, 255, 0, 0.2)';
-                btn.style.borderColor = '#00ff00';
-                
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = 'rgba(212, 175, 55, 0.2)';
-                    btn.style.borderColor = 'var(--secondary-color)';
-                }, 2000);
-            }).catch(err => {
-                alert('Failed to copy. Please copy manually: ' + text);
-            });
+            const text = element.textContent.trim();
+            const btn = event ? event.target : null;
+            const originalText = btn ? btn.textContent : '';
+            
+            // Function to update button visual feedback
+            function showSuccess() {
+                if (btn) {
+                    btn.textContent = 'Copied!';
+                    btn.style.background = 'rgba(0, 255, 0, 0.2)';
+                    btn.style.borderColor = '#00ff00';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'rgba(212, 175, 55, 0.2)';
+                        btn.style.borderColor = 'var(--secondary-color)';
+                    }, 2000);
+                }
+            }
+            
+            // Function to show error
+            function showError() {
+                if (btn) {
+                    const errorText = btn.textContent;
+                    btn.textContent = 'Copy Failed';
+                    btn.style.background = 'rgba(255, 0, 0, 0.2)';
+                    btn.style.borderColor = '#ff0000';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'rgba(212, 175, 55, 0.2)';
+                        btn.style.borderColor = 'var(--secondary-color)';
+                    }, 2000);
+                }
+            }
+            
+            // Try modern Clipboard API first (works in HTTPS/localhost)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccess();
+                }).catch(err => {
+                    // Fallback to execCommand if Clipboard API fails
+                    fallbackCopy(text, showSuccess, showError);
+                });
+            } else {
+                // Fallback to execCommand for non-secure contexts
+                fallbackCopy(text, showSuccess, showError);
+            }
+            
+            // Fallback method using document.execCommand (works in HTTP)
+            function fallbackCopy(textToCopy, onSuccess, onError) {
+                try {
+                    // Create a temporary textarea element
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-999999px';
+                    textarea.style.top = '-999999px';
+                    document.body.appendChild(textarea);
+                    
+                    // Select and copy
+                    textarea.focus();
+                    textarea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    
+                    if (successful) {
+                        onSuccess();
+                    } else {
+                        onError();
+                        alert('Failed to copy. Please copy manually: ' + textToCopy);
+                    }
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                    onError();
+                    alert('Failed to copy. Please copy manually: ' + textToCopy);
+                }
+            }
+        }
+
+        // Server Status Functions
+        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+        let statusRefreshInterval = null;
+
+        /**
+         * Fetch server status from the backend API
+         */
+        async function fetchServerStatus() {
+            const statusElement = document.getElementById('serverStatus');
+            if (!statusElement) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/server/status`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const status = data.server?.status || 'offline';
+                    updateServerStatus(status);
+                } else {
+                    // API responded but with error status
+                    updateServerStatus('offline');
+                }
+            } catch (error) {
+                // API unavailable or network error
+                console.log('Server status API unavailable:', error.message);
+                updateServerStatus('unknown');
+            }
+        }
+
+        /**
+         * Update the server status indicator UI
+         */
+        function updateServerStatus(status) {
+            const statusElement = document.getElementById('serverStatus');
+            if (!statusElement) return;
+
+            // Remove all status classes
+            statusElement.classList.remove('online', 'offline');
+
+            switch (status) {
+                case 'online':
+                    statusElement.textContent = 'Online';
+                    statusElement.classList.add('online');
+                    break;
+                case 'offline':
+                    statusElement.textContent = 'Offline';
+                    statusElement.classList.add('offline');
+                    break;
+                default:
+                    // Unknown/checking state
+                    statusElement.textContent = 'Checking...';
+                    statusElement.classList.add('offline');
+                    break;
+            }
+        }
+
+        /**
+         * Initialize server status checking
+         */
+        function initServerStatus() {
+            // Fetch status immediately on page load
+            fetchServerStatus();
+
+            // Set up auto-refresh every 30 seconds
+            if (statusRefreshInterval) {
+                clearInterval(statusRefreshInterval);
+            }
+            statusRefreshInterval = setInterval(fetchServerStatus, 30000);
+        }
+
+        // Initialize server status when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initServerStatus);
+        } else {
+            initServerStatus();
         }
     </script>
 </body>
