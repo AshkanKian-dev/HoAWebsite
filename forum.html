@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Community Forum - Heart of Acheron">
+    <title>Forum - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Set API base URL (update this to match your backend URL)
+        window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    </script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link active">Forum</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Categories View -->
+        <section class="section" id="categoriesView">
+            <div class="container">
+                <h2 class="section-title">Forum</h2>
+                
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div id="loadingCategories" class="server-info-card" style="text-align: center; padding: 3rem;">
+                        <p style="opacity: 0.9;">Loading forum categories...</p>
+                    </div>
+
+                    <div id="categoriesContent" style="display: none;">
+                        <div class="forum-categories-grid" id="categoriesGrid">
+                            <!-- Categories will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div id="categoriesError" class="payment-error" style="display: none; margin-top: 1rem; text-align: center;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topics View -->
+        <section class="section" id="topicsView" style="display: none;">
+            <div class="container">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <div>
+                            <button class="btn btn-secondary" id="backToCategoriesBtn" style="margin-bottom: 1rem;">← Back to Categories</button>
+                            <h2 class="section-title" style="margin-bottom: 0;" id="categoryTitle">Topics</h2>
+                        </div>
+                        <button class="btn btn-primary" id="newTopicBtn" style="display: none;">New Topic</button>
+                    </div>
+
+                    <div id="loadingTopics" class="server-info-card" style="text-align: center; padding: 3rem;">
+                        <p style="opacity: 0.9;">Loading topics...</p>
+                    </div>
+
+                    <div id="topicsContent" style="display: none;">
+                        <div class="forum-topics-list" id="topicsList">
+                            <!-- Topics will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div id="topicsError" class="payment-error" style="display: none; margin-top: 1rem; text-align: center;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Topic View -->
+        <section class="section" id="topicView" style="display: none;">
+            <div class="container">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <button class="btn btn-secondary" id="backToTopicsBtn" style="margin-bottom: 1rem;">← Back to Topics</button>
+                    
+                    <div id="loadingTopic" class="server-info-card" style="text-align: center; padding: 3rem;">
+                        <p style="opacity: 0.9;">Loading topic...</p>
+                    </div>
+
+                    <div id="topicContent" style="display: none;">
+                        <div class="forum-topic-header" id="topicHeader">
+                            <!-- Topic header will be loaded here -->
+                        </div>
+
+                        <div class="forum-posts-list" id="postsList">
+                            <!-- Posts will be loaded here -->
+                        </div>
+
+                        <div id="replySection" style="display: none;">
+                            <div class="server-info-card" style="margin-top: 2rem;">
+                                <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">Post a Reply</h3>
+                                <form id="replyForm">
+                                    <div class="form-group">
+                                        <label for="replyContent">Your Reply</label>
+                                        <textarea id="replyContent" rows="6" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Post Reply</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="topicError" class="payment-error" style="display: none; margin-top: 1rem; text-align: center;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- New Topic Modal -->
+    <div class="product-modal" id="newTopicModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content" style="max-width: 700px;">
+            <button class="modal-close" id="closeNewTopicModal"></button>
+            <div class="modal-body" style="grid-template-columns: 1fr;">
+                <div>
+                    <h2 style="color: var(--secondary-color); margin-bottom: 1.5rem; text-align: center;">Create New Topic</h2>
+                    <form id="newTopicForm">
+                        <div class="form-group">
+                            <label for="topicCategory">Category</label>
+                            <select id="topicCategory" required>
+                                <option value="">Select a category...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="topicTitle">Title</label>
+                            <input type="text" id="topicTitle" required minlength="3" maxlength="200">
+                        </div>
+                        <div class="form-group">
+                            <label for="topicContent">Content</label>
+                            <textarea id="topicContent" rows="10" required minlength="10"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1;">Create Topic</button>
+                            <button type="button" class="btn btn-secondary" id="cancelNewTopicBtn" style="flex: 1;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All rights reserved. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About & FAQs</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="forum.js"></script>
+</body>
+</html>
+

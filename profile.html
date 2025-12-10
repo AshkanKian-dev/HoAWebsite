@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your profile - Heart of Acheron">
+    <title>Profile - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Set API base URL (update this to match your backend URL)
+        window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    </script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link">Forum</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Profile</h2>
+                
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div id="loadingMessage" class="server-info-card" style="text-align: center; padding: 3rem;">
+                        <p style="opacity: 0.9;">Loading your profile...</p>
+                    </div>
+
+                    <div id="profileContent" style="display: none;">
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-image-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h2 class="profile-character-name" id="characterName">Loading...</h2>
+                                <p class="profile-email" id="userEmail">Loading...</p>
+                            </div>
+                            
+                            <div class="profile-info">
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">Character Name</span>
+                                    <span class="profile-info-value" id="characterNameValue">-</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">Email</span>
+                                    <span class="profile-info-value" id="emailValue">-</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">Steam ID</span>
+                                    <span class="profile-info-value" id="steamIdValue">-</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">Member Since</span>
+                                    <span class="profile-info-value" id="memberSinceValue">-</span>
+                                </div>
+                                <div class="profile-info-item">
+                                    <span class="profile-info-label">Last Login</span>
+                                    <span class="profile-info-value" id="lastLoginValue">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="payment-error" style="display: none; margin-top: 1rem; text-align: center;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All rights reserved. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About & FAQs</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+
+        // Load profile data when page loads
+        window.addEventListener('load', async function() {
+            await loadProfile();
+        });
+
+        async function loadProfile() {
+            const loadingDiv = document.getElementById('loadingMessage');
+            const profileDiv = document.getElementById('profileContent');
+            const errorDiv = document.getElementById('errorMessage');
+
+            // Hide all initially
+            loadingDiv.style.display = 'block';
+            profileDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                // Check if user is logged in
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html?return=profile.html';
+                    return;
+                }
+
+                let userData = null;
+
+                // Try to get user info
+                try {
+                    // Try backend first
+                    const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+
+                    if (userResponse.ok) {
+                        const response = await userResponse.json();
+                        userData = response.user;
+                    } else {
+                        throw new Error('Backend unavailable');
+                    }
+                } catch (backendError) {
+                    // Backend not available, use mock auth
+                    console.log('Backend unavailable, using mock user data');
+                    
+                    // Get user from mock session
+                    const mockSession = JSON.parse(localStorage.getItem('mockSession') || 'null');
+                    if (mockSession && mockSession.token === authToken) {
+                        const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+                        const user = users.find(u => u.userId === mockSession.userId);
+                        
+                        if (user) {
+                            userData = {
+                                characterName: user.characterName,
+                                email: user.email,
+                                steamId: user.steamId || null,
+                                displayName: user.displayName || null,
+                                createdAt: user.createdAt,
+                                lastLogin: new Date().toISOString()
+                            };
+                        }
+                    } else {
+                        // Try to get user from currentUser if available
+                        if (window.getCurrentUser) {
+                            const currentUser = window.getCurrentUser();
+                            if (currentUser) {
+                                userData = {
+                                    characterName: currentUser.characterName,
+                                    email: currentUser.email,
+                                    steamId: currentUser.steamId || null,
+                                    displayName: currentUser.displayName || null,
+                                    createdAt: currentUser.createdAt || new Date().toISOString(),
+                                    lastLogin: currentUser.lastLogin || new Date().toISOString()
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if (!userData) {
+                    throw new Error('User data not found. Please log in again.');
+                }
+
+                // Display profile data
+                document.getElementById('characterName').textContent = userData.characterName || 'Unknown';
+                document.getElementById('characterNameValue').textContent = userData.characterName || 'Not set';
+                document.getElementById('userEmail').textContent = userData.email || 'Unknown';
+                document.getElementById('emailValue').textContent = userData.email || 'Not set';
+                document.getElementById('steamIdValue').textContent = userData.steamId || 'Not linked';
+                
+                if (userData.createdAt) {
+                    const createdDate = new Date(userData.createdAt);
+                    document.getElementById('memberSinceValue').textContent = createdDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                } else {
+                    document.getElementById('memberSinceValue').textContent = 'Unknown';
+                }
+                
+                if (userData.lastLogin) {
+                    const lastLoginDate = new Date(userData.lastLogin);
+                    document.getElementById('lastLoginValue').textContent = lastLoginDate.toLocaleString('en-US');
+                } else {
+                    document.getElementById('lastLoginValue').textContent = 'Never';
+                }
+
+                loadingDiv.style.display = 'none';
+                profileDiv.style.display = 'block';
+
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = error.message || 'An error occurred while loading your profile';
+                errorDiv.style.display = 'block';
+                
+                // If not authenticated, redirect to login
+                if (error.message === 'Not authenticated' || error.message.includes('401')) {
+                    setTimeout(() => {
+                        window.location.href = 'login.html?return=profile.html';
+                    }, 2000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

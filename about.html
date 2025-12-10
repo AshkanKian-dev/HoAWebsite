@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About the Developers and FAQs - Heart of Acheron">
+    <title>About & FAQs - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link">Forum</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">About the Developers</h2>
+                
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <div class="server-info-card" style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--secondary-color); margin-bottom: 1rem; text-align: center;">Meet Our Team</h3>
+                        <p style="opacity: 0.9; line-height: 1.8; text-align: center; font-size: 1.1rem;">
+                            The Heart of Acheron development team is a dedicated group of five talented professionals 
+                            working together to create an exceptional gaming experience. Each member brings unique 
+                            expertise to ensure our server stands out with custom content, stunning visuals, and 
+                            seamless technical execution.
+                        </p>
+                    </div>
+
+                    <div class="features-grid" style="margin-bottom: 3rem;">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎨</div>
+                            <h3>Creative Director</h3>
+                            <p>Leads our creative vision, ensuring all content aligns with our artistic direction and enhances the player experience</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">💾</div>
+                            <h3>Back-end Data Developer</h3>
+                            <p>Manages server hosting infrastructure and backend data systems, ensuring reliable performance and seamless operations</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚙️</div>
+                            <h3>Main Developer</h3>
+                            <p>Specializes in mod creation, developing custom features and functionality that enhance gameplay</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎭</div>
+                            <h3>3D Developer</h3>
+                            <p>Creates stunning 3D models and assets, bringing custom content to life with detailed and immersive visuals</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🏗️</div>
+                            <h3>Technical Designer</h3>
+                            <p>Environmental artist and level designer who creates blueprints, levels, dungeons, and immersive game environments</p>
+                        </div>
+                    </div>
+
+                    <div class="server-info-card" style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--secondary-color); margin-bottom: 1rem; text-align: center;">Our Expertise</h3>
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--secondary-color);">
+                                <strong style="color: var(--secondary-color);">Creative Direction:</strong>
+                                <p style="margin-top: 0.5rem; opacity: 0.9;">Expert creative vision and artistic direction to ensure cohesive and engaging content across all aspects of the server</p>
+                            </div>
+                            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--secondary-color);">
+                                <strong style="color: var(--secondary-color);">Backend & Server Infrastructure:</strong>
+                                <p style="margin-top: 0.5rem; opacity: 0.9;">Robust server hosting, backend data management, and system architecture ensuring reliable performance and scalability</p>
+                            </div>
+                            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--secondary-color);">
+                                <strong style="color: var(--secondary-color);">Mod Development:</strong>
+                                <p style="margin-top: 0.5rem; opacity: 0.9;">Custom mod creation and game modification, developing unique features and functionality tailored to enhance player experience</p>
+                            </div>
+                            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--secondary-color);">
+                                <strong style="color: var(--secondary-color);">3D Modeling & Asset Creation:</strong>
+                                <p style="margin-top: 0.5rem; opacity: 0.9;">Professional 3D model development, creating custom assets, characters, and visual elements that bring our world to life</p>
+                            </div>
+                            <div style="padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--secondary-color);">
+                                <strong style="color: var(--secondary-color);">Level Design & Technical Design:</strong>
+                                <p style="margin-top: 0.5rem; opacity: 0.9;">Environmental artistry, blueprint creation, and level design including dungeons, landscapes, and immersive game environments</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-dark">
+            <div class="container">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <div class="faq-container">
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How do I join the server?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Check out our Server Information page for connection details, server IP, and port information. You'll also find instructions on how to connect and any required mods.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How do I make a purchase in the shop?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Browse our shop, select the item you want, and proceed to checkout. We accept multiple payment methods including credit cards, PayPal, and other secure payment options. After payment, items are automatically delivered to your character in-game.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How long does item delivery take?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Most items are delivered automatically within a few minutes of purchase. If you experience any delays, please contact us through the Contact page with your order ID.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Can I get a refund?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Refund requests are handled on a case-by-case basis. Please contact us through the Contact page with your order details and reason for refund. We'll review your request and respond within 24-48 hours.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How do I reset my password?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Use the "Reset Password" option in your account dropdown menu, or contact us through the Contact page. We'll send you instructions to reset your password securely.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>What if I have a problem with my account?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>If you encounter any issues with your account, please contact us through the Contact page. Include as much detail as possible about the problem, and we'll assist you as quickly as possible.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>How can I contact the developers?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>You can reach us through the Contact page on this website. We typically respond within 24-48 hours. For urgent server issues, please use the in-game reporting system.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <button class="faq-question" aria-expanded="false">
+                                <span>Is my payment information secure?</span>
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Yes, absolutely. We use industry-standard encryption and secure payment processors (Stripe, PayPal) to handle all transactions. We never store your full payment details on our servers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All rights reserved. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About & FAQs</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // FAQ Accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('.faq-icon');
+                    
+                    // Close all other FAQs
+                    faqQuestions.forEach(q => {
+                        if (q !== this) {
+                            q.setAttribute('aria-expanded', 'false');
+                            q.nextElementSibling.style.maxHeight = null;
+                            q.querySelector('.faq-icon').textContent = '+';
+                        }
+                    });
+                    
+                    // Toggle current FAQ
+                    if (isExpanded) {
+                        this.setAttribute('aria-expanded', 'false');
+                        answer.style.maxHeight = null;
+                        icon.textContent = '+';
+                    } else {
+                        this.setAttribute('aria-expanded', 'true');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        icon.textContent = '−';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

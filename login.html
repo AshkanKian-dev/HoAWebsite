@@ -20,6 +20,7 @@
                 </div>
                 <ul class="nav-menu">
                     <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link">Forum</a></li>
                     <li><a href="server-info.html" class="nav-link">Server Information</a></li>
                     <li><a href="shop.html" class="nav-link">Shop</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
@@ -36,7 +37,7 @@
                         <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
                         <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
                         <div id="loggedInMenu" style="display: none;">
-                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
                             <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
                             <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
                             <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
@@ -60,6 +61,11 @@
                 <p class="subtitle">Sign in to your account</p>
 
                 <div id="authAlert" class="auth-alert"></div>
+
+                <!-- Developer Login Button -->
+                <button id="developerLoginBtn" class="btn btn-secondary" style="width: 100%; margin-bottom: 1.5rem; background: rgba(107, 44, 145, 0.3); border-color: var(--primary-color); font-size: 0.85rem; padding: 10px 20px;">
+                    🔧 Developer Login (Auto)
+                </button>
 
                 <form id="loginForm" class="auth-form">
                     <div class="form-group">
@@ -100,7 +106,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
+            <p>&copy; 2026 Heart of Acheron. All rights reserved. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About & FAQs</a></p>
         </div>
     </footer>
 
@@ -132,22 +138,35 @@
             submitBtn.classList.add('loading');
             
             try {
-                const response = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password,
-                        rememberMe
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Login failed');
+                // Try backend first
+                let data;
+                try {
+                    const response = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            rememberMe
+                        })
+                    });
+                    
+                    data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Login failed');
+                    }
+                } catch (backendError) {
+                    // Backend not available, try mock auth
+                    if (window.mockLogin) {
+                        console.log('Backend unavailable, using mock authentication');
+                        const mockResult = await window.mockLogin(email, password);
+                        data = mockResult;
+                    } else {
+                        throw backendError;
+                    }
                 }
                 
                 // Store token
@@ -189,6 +208,129 @@
                 }, 3000);
             }
         }
+        
+        // Developer login functionality
+        document.getElementById('developerLoginBtn').addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this;
+            const alertDiv = document.getElementById('authAlert');
+            
+            // Clear previous errors
+            alertDiv.classList.remove('show', 'error', 'success');
+            
+            // Generate random test credentials
+            const randomId = Math.floor(Math.random() * 10000);
+            const testEmail = `dev.test.${randomId}@example.com`;
+            const testPassword = `TestPassword${randomId}!`;
+            const testCharacterName = `TestCharacter${randomId}`;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            
+            try {
+                // Check if mock auth is available (backend not running)
+                if (window.mockLogin) {
+                    // Use mock authentication
+                    const result = await window.mockLogin(testEmail, testPassword, testCharacterName);
+                    
+                    showAlert(`Developer login successful! (${testEmail})`, 'success');
+                    
+                    // Redirect to home
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                        window.location.href = returnUrl;
+                    }, 1000);
+                    return;
+                }
+                
+                // Try backend authentication
+                try {
+                    // First try to register
+                    submitBtn.textContent = 'Creating account...';
+                    const registerResponse = await fetch(`${window.API_BASE_URL}/api/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: testEmail,
+                            password: testPassword,
+                            characterName: testCharacterName
+                        })
+                    });
+                    
+                    // If registration fails, try login (account might exist)
+                    if (!registerResponse.ok) {
+                        const regData = await registerResponse.json();
+                        if (!regData.error || !regData.error.includes('already')) {
+                            throw new Error(regData.error || 'Registration failed');
+                        }
+                    }
+                    
+                    // Wait a moment
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // Now login
+                    submitBtn.textContent = 'Logging in...';
+                    const loginResponse = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: testEmail,
+                            password: testPassword,
+                            rememberMe: false
+                        })
+                    });
+                    
+                    const loginData = await loginResponse.json();
+                    
+                    if (!loginResponse.ok) {
+                        throw new Error(loginData.error || 'Login failed');
+                    }
+                    
+                    // Store token
+                    if (loginData.token) {
+                        localStorage.setItem('authToken', loginData.token);
+                    }
+                    
+                    // Update auth state
+                    if (window.updateAuthState) {
+                        window.updateAuthState();
+                    }
+                    
+                    showAlert(`Developer login successful! (${testEmail})`, 'success');
+                    
+                    // Redirect to home
+                    setTimeout(() => {
+                        const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                        window.location.href = returnUrl;
+                    }, 1000);
+                    
+                } catch (backendError) {
+                    // Backend failed, try mock auth as fallback
+                    console.warn('Backend failed, using mock auth:', backendError);
+                    if (window.mockLogin) {
+                        const result = await window.mockLogin(testEmail, testPassword, testCharacterName);
+                        showAlert(`Developer login successful (mock mode)! (${testEmail})`, 'success');
+                        setTimeout(() => {
+                            const returnUrl = new URLSearchParams(window.location.search).get('return') || 'index.html';
+                            window.location.href = returnUrl;
+                        }, 1000);
+                    } else {
+                        throw backendError;
+                    }
+                }
+                
+            } catch (error) {
+                showAlert(error.message || 'Developer login failed. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🔧 Developer Login (Auto)';
+            }
+        });
         
         // Check if already logged in
         if (window.checkAuthState) {

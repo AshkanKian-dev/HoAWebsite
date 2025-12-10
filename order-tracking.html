@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Track your order status - Heart of Acheron">
-    <title>Order Tracking - Heart of Acheron</title>
+    <meta name="description" content="View your transaction history - Heart of Acheron">
+    <title>Transaction History - Heart of Acheron</title>
     <link rel="stylesheet" href="styles.css">
     <script>
         // Set API base URL (update this to match your backend URL)
@@ -21,6 +21,7 @@
                 </div>
                 <ul class="nav-menu">
                     <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link">Forum</a></li>
                     <li><a href="server-info.html" class="nav-link">Server Information</a></li>
                     <li><a href="shop.html" class="nav-link">Shop</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
@@ -37,7 +38,7 @@
                         <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
                         <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
                         <div id="loggedInMenu" style="display: none;">
-                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
                             <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
                             <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
                             <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
@@ -57,32 +58,24 @@
     <main>
         <section class="section">
             <div class="container">
-                <h2 class="section-title">Order Tracking</h2>
+                <h2 class="section-title">Transaction History</h2>
                 
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <div class="server-info-card" style="margin-bottom: 2rem;">
-                        <h3>Lookup Your Order</h3>
-                        <p style="margin-bottom: 1.5rem; opacity: 0.9;">Enter your order ID or email address to track your purchase status.</p>
-                        
-                        <form id="trackingForm" class="customer-info-form">
-                            <div class="form-group">
-                                <label for="orderId">Order ID</label>
-                                <input type="text" id="orderId" name="orderId" placeholder="pi_1234567890abcdef">
-                            </div>
-                            <div style="text-align: center; margin: 1.5rem 0; opacity: 0.7;">OR</div>
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" placeholder="your.email@example.com">
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">Track Order</button>
-                        </form>
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <div id="loadingMessage" class="server-info-card" style="text-align: center; padding: 3rem;">
+                        <p style="opacity: 0.9;">Loading your transaction history...</p>
                     </div>
 
-                    <div id="orderResults" style="display: none;">
-                        <!-- Order results will be displayed here -->
+                    <div id="transactionHistory" style="display: none;">
+                        <!-- Transaction history will be displayed here -->
                     </div>
 
-                    <div id="errorMessage" class="payment-error" style="display: none; margin-top: 1rem;"></div>
+                    <div id="errorMessage" class="payment-error" style="display: none; margin-top: 1rem; text-align: center;"></div>
+
+                    <div id="noTransactions" class="server-info-card" style="display: none; text-align: center; padding: 3rem;">
+                        <h3 style="color: var(--secondary-color); margin-bottom: 1rem;">No Transactions Yet</h3>
+                        <p style="opacity: 0.9; margin-bottom: 2rem;">You haven't made any purchases yet. Visit our shop to get started!</p>
+                        <a href="shop.html" class="btn btn-primary">Visit Shop</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -90,7 +83,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
+            <p>&copy; 2026 Heart of Acheron. All rights reserved. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About & FAQs</a></p>
         </div>
     </footer>
 
@@ -99,184 +92,155 @@
     <script>
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
 
-        document.getElementById('trackingForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const orderId = document.getElementById('orderId').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const errorDiv = document.getElementById('errorMessage');
-            const resultsDiv = document.getElementById('orderResults');
-            
-            // Hide previous results
-            errorDiv.style.display = 'none';
-            resultsDiv.style.display = 'none';
-            errorDiv.textContent = '';
+        // Load transaction history when page loads
+        window.addEventListener('load', async function() {
+            await loadTransactionHistory();
+        });
 
-            if (!orderId && !email) {
-                errorDiv.textContent = 'Please enter either an Order ID or Email address';
-                errorDiv.style.display = 'block';
-                return;
-            }
+        async function loadTransactionHistory() {
+            const loadingDiv = document.getElementById('loadingMessage');
+            const historyDiv = document.getElementById('transactionHistory');
+            const errorDiv = document.getElementById('errorMessage');
+            const noTransactionsDiv = document.getElementById('noTransactions');
+
+            // Hide all initially
+            loadingDiv.style.display = 'block';
+            historyDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            noTransactionsDiv.style.display = 'none';
 
             try {
-                let order;
-                
-                if (orderId) {
-                    // Fetch by order ID
-                    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
-                    if (!response.ok) {
-                        if (response.status === 404) {
-                            throw new Error('Order not found. Please check your Order ID and try again.');
+                // Check if user is logged in
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html?return=order-tracking.html';
+                    return;
+                }
+
+                let transactions = [];
+                let userEmail = null;
+
+                // Try to get user info (check if using mock auth)
+                try {
+                    // Try backend first
+                    const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
                         }
-                        throw new Error('Failed to fetch order');
-                    }
-                    order = await response.json();
-                } else {
-                    // Fetch by email
-                    const response = await fetch(`${API_BASE_URL}/api/orders/email/${encodeURIComponent(email)}`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch orders');
-                    }
-                    const data = await response.json();
-                    if (!data.orders || data.orders.length === 0) {
-                        throw new Error('No orders found for this email address');
-                    }
-                    // Show most recent order, or all orders if multiple
-                    if (data.orders.length === 1) {
-                        order = data.orders[0];
+                    });
+
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        userEmail = userData.user.email;
+
+                        // Fetch transactions from backend
+                        const transactionsResponse = await fetch(`${API_BASE_URL}/api/orders/email/${encodeURIComponent(userEmail)}`, {
+                            headers: {
+                                'Authorization': `Bearer ${authToken}`
+                            }
+                        });
+
+                        if (transactionsResponse.ok) {
+                            const transactionsData = await transactionsResponse.json();
+                            transactions = transactionsData.orders || [];
+                        }
                     } else {
-                        displayMultipleOrders(data.orders);
-                        return;
+                        throw new Error('Backend unavailable');
+                    }
+                } catch (backendError) {
+                    // Backend not available, use mock data
+                    console.log('Backend unavailable, using mock transaction data');
+                    
+                    // Get user from mock session
+                    const mockSession = JSON.parse(localStorage.getItem('mockSession') || 'null');
+                    if (mockSession && mockSession.token === authToken) {
+                        userEmail = mockSession.email;
+                        
+                        // Get mock transactions from localStorage
+                        const mockTransactions = JSON.parse(localStorage.getItem('mockTransactions') || '[]');
+                        transactions = mockTransactions.filter(t => t.email === userEmail);
+                    } else {
+                        // Try to get user from currentUser if available
+                        if (window.getCurrentUser) {
+                            const currentUser = window.getCurrentUser();
+                            if (currentUser) {
+                                userEmail = currentUser.email;
+                                const mockTransactions = JSON.parse(localStorage.getItem('mockTransactions') || '[]');
+                                transactions = mockTransactions.filter(t => t.email === userEmail);
+                            }
+                        }
                     }
                 }
 
-                displayOrder(order);
-                
+                loadingDiv.style.display = 'none';
+
+                if (transactions.length === 0) {
+                    noTransactionsDiv.style.display = 'block';
+                } else {
+                    displayTransactionHistory(transactions);
+                    historyDiv.style.display = 'block';
+                }
+
             } catch (error) {
-                errorDiv.textContent = error.message || 'An error occurred while fetching your order';
+                loadingDiv.style.display = 'none';
+                errorDiv.textContent = error.message || 'An error occurred while loading your transaction history';
                 errorDiv.style.display = 'block';
+                
+                // If not authenticated, redirect to login
+                if (error.message === 'Not authenticated' || error.message.includes('401')) {
+                    setTimeout(() => {
+                        window.location.href = 'login.html?return=order-tracking.html';
+                    }, 2000);
+                }
             }
-        });
+        }
 
-        function displayOrder(order) {
-            const resultsDiv = document.getElementById('orderResults');
-            const statusColors = {
-                'pending': '#D4AF37',
-                'processing': '#6B2C91',
-                'delivered': '#00ff00',
-                'failed': '#C41E3A',
-                'refunded': '#888888'
-            };
-
-            const statusColor = statusColors[order.status] || '#888888';
-            const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+        function displayTransactionHistory(transactions) {
+            const historyDiv = document.getElementById('transactionHistory');
             
-            const deliveredDate = order.delivered_at 
-                ? new Date(order.delivered_at).toLocaleString() 
-                : 'Not yet delivered';
-            
-            const createdDate = order.created_at 
-                ? new Date(order.created_at).toLocaleString() 
-                : 'Unknown';
+            // Sort transactions by date (most recent first)
+            transactions.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                return dateB - dateA;
+            });
 
-            resultsDiv.innerHTML = `
+            historyDiv.innerHTML = `
                 <div class="server-info-card">
-                    <h3>Order Details</h3>
-                    <div style="margin-top: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
-                            <strong>Order ID:</strong>
-                            <span style="font-family: monospace; color: var(--secondary-color);">${order.order_id}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Status:</strong>
-                            <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Product:</strong>
-                            <span>${order.product_name}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Amount:</strong>
-                            <span style="color: var(--secondary-color); font-weight: bold;">$${parseFloat(order.price).toFixed(2)}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Character:</strong>
-                            <span>${order.character_name}</span>
-                        </div>
-                        ${order.steam_id ? `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Steam ID:</strong>
-                            <span style="font-family: monospace; font-size: 0.9rem;">${order.steam_id}</span>
-                        </div>
-                        ` : ''}
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Order Date:</strong>
-                            <span>${createdDate}</span>
-                        </div>
-                        ${order.delivered_at ? `
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <strong>Delivered:</strong>
-                            <span style="color: #00ff00;">${deliveredDate}</span>
-                        </div>
-                        ` : ''}
-                        ${order.status === 'delivered' ? `
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 255, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 255, 0, 0.3);">
-                            <p style="margin: 0; color: #00ff00;">✓ Your items have been delivered! Please check your in-game inventory.</p>
-                        </div>
-                        ` : order.status === 'processing' ? `
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(107, 44, 145, 0.1); border-radius: 5px; border: 1px solid rgba(107, 44, 145, 0.3);">
-                            <p style="margin: 0;">⏳ Your order is being processed. Items will be delivered shortly.</p>
-                        </div>
-                        ` : order.status === 'failed' ? `
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(196, 30, 58, 0.1); border-radius: 5px; border: 1px solid rgba(196, 30, 58, 0.3);">
-                            <p style="margin: 0; color: #C41E3A;">✗ Delivery failed. Please contact support with your Order ID.</p>
-                        </div>
-                        ` : ''}
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1.5rem; text-align: center;">Your Transactions (${transactions.length})</h3>
+                    <div style="display: grid; gap: 1rem;">
+                        ${transactions.map(transaction => {
+                            const transactionDate = transaction.created_at 
+                                ? new Date(transaction.created_at).toLocaleString() 
+                                : 'Unknown';
+                            
+                            const transactionId = transaction.order_id || transaction.payment_intent_id || 'N/A';
+                            const amount = transaction.price || transaction.amount || 0;
+                            const productName = transaction.product_name || 'Unknown Product';
+                            
+                            return `
+                                <div style="padding: 1.5rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border: 2px solid var(--border-glow); transition: all 0.3s ease;">
+                                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;">
+                                        <div>
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; align-items: center;">
+                                                <h4 style="color: var(--secondary-color); margin: 0; font-size: 1.1rem;">${productName}</h4>
+                                                <span style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">$${parseFloat(amount).toFixed(2)}</span>
+                                            </div>
+                                            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">
+                                                <strong>Transaction ID:</strong> <span style="font-family: monospace; color: var(--text-light);">${transactionId}</span>
+                                            </div>
+                                            <div style="font-size: 0.9rem; opacity: 0.8;">
+                                                <strong>Date:</strong> ${transactionDate}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
             `;
-            
-            resultsDiv.style.display = 'block';
-        }
-
-        function displayMultipleOrders(orders) {
-            const resultsDiv = document.getElementById('orderResults');
-            
-            resultsDiv.innerHTML = `
-                <div class="server-info-card">
-                    <h3>Your Orders (${orders.length})</h3>
-                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Found ${orders.length} orders. Showing most recent first.</p>
-                    ${orders.map(order => {
-                        const statusColors = {
-                            'pending': '#D4AF37',
-                            'processing': '#6B2C91',
-                            'delivered': '#00ff00',
-                            'failed': '#C41E3A',
-                            'refunded': '#888888'
-                        };
-                        const statusColor = statusColors[order.status] || '#888888';
-                        const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
-                        const createdDate = order.created_at ? new Date(order.created_at).toLocaleString() : 'Unknown';
-                        
-                        return `
-                            <div style="padding: 1rem; margin-bottom: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 5px; border-left: 3px solid ${statusColor};">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                    <strong>${order.product_name}</strong>
-                                    <span style="color: ${statusColor}; font-size: 0.9rem;">${statusText}</span>
-                                </div>
-                                <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">
-                                    Order ID: <span style="font-family: monospace;">${order.order_id.substring(0, 20)}...</span>
-                                </div>
-                                <div style="font-size: 0.9rem; opacity: 0.8;">
-                                    ${order.character_name} • $${parseFloat(order.price).toFixed(2)} • ${createdDate}
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            
-            resultsDiv.style.display = 'block';
         }
     </script>
 </body>
