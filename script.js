@@ -8,52 +8,29 @@ if (mobileMenuToggle) {
     });
 }
 
-// Smooth Scrolling for Navigation Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        
-        if (target) {
-            const headerOffset = 80;
-            const elementPosition = target.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-
-            // Close mobile menu if open
-            navMenu.classList.remove('active');
-        }
-    });
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (navMenu && mobileMenuToggle && !navMenu.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+        navMenu.classList.remove('active');
+    }
 });
 
-// Active Navigation Link on Scroll
-const sections = document.querySelectorAll('section[id]');
-
-function updateActiveNavLink() {
-    const scrollY = window.pageYOffset;
-
-    sections.forEach(section => {
-        const sectionHeight = section.offsetHeight;
-        const sectionTop = section.offsetTop - 100;
-        const sectionId = section.getAttribute('id');
-        const navLink = document.querySelector(`.nav-link[href="#${sectionId}"]`);
-
-        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            if (navLink) {
-                navLink.classList.add('active');
-            }
+// Active Navigation Link Detection
+function setActiveNavLink() {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        const linkHref = link.getAttribute('href');
+        if (linkHref === currentPage || (currentPage === '' && linkHref === 'index.html')) {
+            link.classList.add('active');
         }
     });
 }
 
-window.addEventListener('scroll', updateActiveNavLink);
+// Set active nav link on page load
+setActiveNavLink();
 
 // Form Submission Handler
 const contactForm = document.querySelector('.contact-form');
@@ -65,20 +42,21 @@ if (contactForm) {
         // Get form values
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
+        const subject = document.getElementById('subject')?.value || 'No subject';
         const message = document.getElementById('message').value;
         
         // Simple validation
         if (name && email && message) {
             // Here you would typically send the data to a server
-            alert('Thank you for your message! We will get back to you soon.');
+            alert('Thank you for your message, ' + name + '! We will get back to you soon at ' + email + '.');
             contactForm.reset();
         } else {
-            alert('Please fill in all fields.');
+            alert('Please fill in all required fields.');
         }
     });
 }
 
-// Add scroll animation to feature cards
+// Add scroll animation to cards
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -93,11 +71,10 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe feature cards
-document.querySelectorAll('.feature-card').forEach(card => {
+// Observe cards and feature cards
+document.querySelectorAll('.feature-card, .product-card, .server-info-card, .contact-method').forEach(card => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(20px)';
     card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     observer.observe(card);
 });
-

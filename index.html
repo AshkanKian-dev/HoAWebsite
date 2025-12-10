@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Conan Exiles Game Website">
-    <title>Conan Exiles - Home</title>
+    <meta name="description" content="Heart of Acheron - Join the ultimate gaming experience">
+    <title>Heart of Acheron - Home</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,13 +12,14 @@
         <nav class="nav">
             <div class="nav-container">
                 <div class="logo">
-                    <h1>Conan Exiles</h1>
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
                 </div>
                 <ul class="nav-menu">
-                    <li><a href="#home" class="nav-link active">Home</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#features" class="nav-link">Features</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
                     <span></span>
@@ -30,86 +31,82 @@
     </header>
 
     <main>
-        <section id="home" class="hero">
+        <section class="hero">
             <div class="hero-content">
-                <h2 class="hero-title">Welcome to Conan Exiles</h2>
-                <p class="hero-subtitle">Survive, Build, and Conquer in the Exiled Lands</p>
+                <h2 class="hero-title">Heart of Acheron</h2>
+                <p class="hero-subtitle">Welcome to the ultimate gaming experience. Join our community and embark on epic adventures.</p>
                 <div class="hero-buttons">
-                    <a href="#about" class="btn btn-primary">Learn More</a>
-                    <a href="#features" class="btn btn-secondary">Explore Features</a>
+                    <a href="server-info.html" class="btn btn-primary">Join Server</a>
+                    <a href="shop.html" class="btn btn-secondary">Visit Shop</a>
                 </div>
             </div>
         </section>
 
-        <section id="about" class="section">
+        <section class="section">
             <div class="container">
-                <h2 class="section-title">About</h2>
+                <h2 class="section-title">Welcome to Heart of Acheron</h2>
                 <div class="about-content">
-                    <p class="about-text">
-                        Conan Exiles is an open-world survival game set in the brutal lands of Conan the Barbarian. 
-                        Survive in a savage world, build your kingdom, and dominate your enemies.
+                    <p class="about-text" style="font-size: 1.2rem; line-height: 1.8; max-width: 800px; margin: 0 auto; text-align: center;">
+                        Heart of Acheron offers an unparalleled gaming experience with a dedicated community, 
+                        custom features, and a world of adventure waiting for you. Whether you're a seasoned 
+                        veteran or new to the realm, you'll find your place here.
                     </p>
                 </div>
             </div>
         </section>
 
-        <section id="features" class="section section-dark">
+        <section class="section section-dark">
             <div class="container">
-                <h2 class="section-title">Features</h2>
+                <h2 class="section-title">Why Choose Us</h2>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">⚔️</div>
-                        <h3>Combat</h3>
-                        <p>Engage in brutal combat with weapons and magic</p>
+                        <h3>Active Community</h3>
+                        <p>Join a thriving community of players who share your passion for adventure and exploration</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🏰</div>
-                        <h3>Building</h3>
-                        <p>Construct massive fortresses and settlements</p>
+                        <h3>Custom Features</h3>
+                        <p>Experience unique custom content and features designed to enhance your gameplay</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">🌍</div>
-                        <h3>Exploration</h3>
-                        <p>Discover vast lands filled with danger and treasure</p>
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Fair Play</h3>
+                        <p>Enjoy a balanced and fair gaming environment with active moderation and support</p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">👥</div>
-                        <h3>Multiplayer</h3>
-                        <p>Play with friends or face off against enemies</p>
+                        <div class="feature-icon">🌟</div>
+                        <h3>Regular Events</h3>
+                        <p>Participate in exciting events, tournaments, and community activities</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="contact" class="section">
+        <section class="section">
             <div class="container">
-                <h2 class="section-title">Contact</h2>
-                <form class="contact-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
+                <h2 class="section-title">Get Started</h2>
+                <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">
+                        Ready to begin your journey? Check out our server information to learn how to connect, 
+                        or visit our shop to enhance your experience.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="server-info.html" class="btn btn-primary">Server Information</a>
+                        <a href="shop.html" class="btn btn-secondary">Browse Shop</a>
+                        <a href="contact.html" class="btn btn-secondary">Contact Us</a>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
+                </div>
             </div>
         </section>
     </main>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Conan Exiles. All rights reserved.</p>
+            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
-

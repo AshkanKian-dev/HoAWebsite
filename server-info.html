@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Heart of Acheron - Server Information and Connection Details">
+    <title>Server Information - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link active">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Server Information</h2>
+                
+                <div class="server-info-grid">
+                    <div class="server-info-card">
+                        <h3>Server Status</h3>
+                        <span class="server-status online" id="serverStatus">Online</span>
+                        <p style="margin-top: 1rem; opacity: 0.9;">The server is currently running and accepting connections.</p>
+                    </div>
+
+                    <div class="server-info-card">
+                        <h3>Connection Details</h3>
+                        <ul class="server-details">
+                            <li>
+                                <strong>Server IP:</strong>
+                                <span>
+                                    <code id="serverIP">your.server.ip:port</code>
+                                    <button class="copy-btn" onclick="copyToClipboard('serverIP')">Copy</button>
+                                </span>
+                            </li>
+                            <li>
+                                <strong>Port:</strong>
+                                <span><code id="serverPort">7777</code></span>
+                            </li>
+                            <li>
+                                <strong>Query Port:</strong>
+                                <span><code id="queryPort">27015</code></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="server-info-card">
+                        <h3>Quick Connect</h3>
+                        <p style="margin-bottom: 1rem; opacity: 0.9;">Use the following information to connect directly:</p>
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                            <code style="color: var(--secondary-color); font-size: 1.1rem;" id="connectString">your.server.ip:port</code>
+                        </div>
+                        <button class="btn btn-primary" onclick="copyToClipboard('connectString')">Copy Connection String</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 4rem;">
+                    <h3 style="color: var(--secondary-color); font-size: 2rem; text-align: center; margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">How to Connect</h3>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">1️⃣</div>
+                            <h3>Step 1</h3>
+                            <p>Launch the game and navigate to the server browser</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">2️⃣</div>
+                            <h3>Step 2</h3>
+                            <p>Search for "Heart of Acheron" or use the direct IP address</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">3️⃣</div>
+                            <h3>Step 3</h3>
+                            <p>Click connect and join our community!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 4rem; background: rgba(26, 26, 26, 0.8); padding: 2rem; border-radius: 10px; border: 2px solid var(--border-glow);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">Server Specifications</h3>
+                    <ul class="server-details">
+                        <li><strong>Max Players:</strong> <span>50</span></li>
+                        <li><strong>Uptime:</strong> <span>24/7</span></li>
+                        <li><strong>Backup Frequency:</strong> <span>Daily</span></li>
+                        <li><strong>Region:</strong> <span>US East</span></li>
+                    </ul>
+                    <p style="margin-top: 1rem; opacity: 0.9; font-style: italic;">
+                        Note: Server specifications may vary. Please check with server administrators for the most current information.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent.trim();
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = 'rgba(0, 255, 0, 0.2)';
+                btn.style.borderColor = '#00ff00';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'rgba(212, 175, 55, 0.2)';
+                    btn.style.borderColor = 'var(--secondary-color)';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy. Please copy manually: ' + text);
+            });
+        }
+    </script>
+</body>
+</html>
+

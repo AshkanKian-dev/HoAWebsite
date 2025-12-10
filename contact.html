@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact Heart of Acheron - Get in touch with our team">
+    <title>Contact - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link active">Contact</a></li>
+                </ul>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Contact Us</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem;" class="contact-layout">
+                    <div>
+                        <h3 style="color: var(--secondary-color); margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">Send us a Message</h3>
+                        <form class="contact-form" style="max-width: 100%;">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" required placeholder="Your name">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <input type="text" id="subject" name="subject" required placeholder="What is this regarding?">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="6" required placeholder="Your message here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Send Message</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 style="color: var(--secondary-color); margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">Other Ways to Reach Us</h3>
+                        <div class="contact-methods">
+                            <div class="contact-method">
+                                <div class="feature-icon">💬</div>
+                                <h3>Discord</h3>
+                                <p>Join our Discord server for instant support and community interaction.</p>
+                                <a href="https://discord.gg/WZN4xDN9xg" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="margin-top: 1rem;">Join Discord</a>
+                            </div>
+                            <div class="contact-method">
+                                <div class="feature-icon">📧</div>
+                                <h3>Email</h3>
+                                <p>Send us an email for official inquiries and support requests.</p>
+                                <p class="contact-info">support@heartofacheron.com</p>
+                            </div>
+                            <div class="contact-method">
+                                <div class="feature-icon">🎮</div>
+                                <h3>In-Game</h3>
+                                <p>Contact our moderators directly in-game for immediate assistance.</p>
+                                <p class="contact-info">Use /help command</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; background: rgba(26, 26, 26, 0.8); padding: 2rem; border-radius: 10px; border: 2px solid var(--border-glow);">
+                            <h4 style="color: var(--secondary-color); margin-bottom: 1rem;">Response Times</h4>
+                            <ul style="list-style: none; line-height: 2;">
+                                <li>📱 <strong>Discord:</strong> Usually within minutes</li>
+                                <li>📧 <strong>Email:</strong> Within 24-48 hours</li>
+                                <li>🎮 <strong>In-Game:</strong> When moderators are online</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

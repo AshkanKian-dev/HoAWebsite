@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Heart of Acheron - Shop for donations, in-game items, and server perks">
+    <title>Shop - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Payment Provider SDKs -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD" data-sdk-integration-source="button-factory"></script>
+    <script src="https://pay.google.com/gp/p/js/pay.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link active">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Shop</h2>
+                
+                <div class="shop-categories">
+                    <button class="category-btn active" data-category="all">All Items</button>
+                    <button class="category-btn" data-category="donations">Donations</button>
+                    <button class="category-btn" data-category="items">In-Game Items</button>
+                    <button class="category-btn" data-category="perks">Server Perks</button>
+                </div>
+
+                <div class="shop-grid" id="shopGrid">
+                    <!-- Donations Category -->
+                    <div class="product-card" data-category="donations" data-product="supporter">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-supporter.jpg" alt="Supporter Package" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Supporter Package</h3>
+                            <p>Show your support for the server and help us keep it running smoothly.</p>
+                            <div class="product-price">$10.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="donations" data-product="hero">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-hero.jpg" alt="Hero Package" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Hero Package</h3>
+                            <p>Become a hero of the server with this premium support package.</p>
+                            <div class="product-price">$25.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="donations" data-product="legend">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-legend.jpg" alt="Legend Package" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Legend Package</h3>
+                            <p>The ultimate support package for true legends of the server.</p>
+                            <div class="product-price">$50.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <!-- In-Game Items Category -->
+                    <div class="product-card" data-category="items" data-product="weapon">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-weapon.jpg" alt="Legendary Weapon" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Legendary Weapon</h3>
+                            <p>Powerful weapon to aid you in your adventures.</p>
+                            <div class="product-price">$5.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="items" data-product="armor">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-armor.jpg" alt="Elite Armor Set" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Elite Armor Set</h3>
+                            <p>Complete armor set for maximum protection.</p>
+                            <div class="product-price">$8.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="items" data-product="resources">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-resources.jpg" alt="Resource Pack" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Resource Pack</h3>
+                            <p>Essential resources to get you started.</p>
+                            <div class="product-price">$3.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <!-- Server Perks Category -->
+                    <div class="product-card" data-category="perks" data-product="vip">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-vip.jpg" alt="VIP Status" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>VIP Status (1 Month)</h3>
+                            <p>Enjoy VIP benefits including priority support and exclusive features.</p>
+                            <div class="product-price">$15.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="perks" data-product="boost">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-boost.jpg" alt="Experience Boost" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Experience Boost (7 Days)</h3>
+                            <p>Double your experience gain for 7 days.</p>
+                            <div class="product-price">$7.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" data-category="perks" data-product="custom">
+                        <div class="product-image-wrapper">
+                            <img src="images/shop/item-custom.jpg" alt="Custom Name Color" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="product-image-placeholder" style="display:none; width:100%; height:200px; background:linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3));"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3>Custom Name Color</h3>
+                            <p>Stand out with a custom colored name in-game.</p>
+                            <div class="product-price">$4.00</div>
+                            <button class="btn btn-primary" style="width:100%;">Purchase</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="product-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Close modal"></button>
+            <div class="modal-body">
+                <div class="modal-image-wrapper">
+                    <img id="modalImage" src="" alt="" class="modal-image">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalTitle"></h2>
+                    <div class="modal-price" id="modalPrice"></div>
+                    <div class="modal-description" id="modalDescription"></div>
+                    <button class="btn btn-primary modal-purchase-btn" style="width:100%; margin-top: 1.5rem;">Purchase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="payment-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content payment-modal-content">
+            <button class="modal-close payment-modal-close" aria-label="Close payment modal"></button>
+            <div class="payment-modal-body">
+                <div class="payment-product-summary">
+                    <div class="payment-product-image">
+                        <img id="paymentProductImage" src="" alt="">
+                    </div>
+                    <div class="payment-product-details">
+                        <h3 id="paymentProductName"></h3>
+                        <div class="payment-product-price" id="paymentProductPrice"></div>
+                    </div>
+                </div>
+
+                <div class="payment-form-container">
+                    <h3 class="payment-section-title">Customer Information</h3>
+                    <form id="customerInfoForm" class="customer-info-form">
+                        <div class="form-group">
+                            <label for="customerName">Full Name *</label>
+                            <input type="text" id="customerName" name="name" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Email Address *</label>
+                            <input type="email" id="customerEmail" name="email" required placeholder="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="customerPhone">Phone Number (Optional)</label>
+                            <input type="tel" id="customerPhone" name="phone" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="createAccount" name="createAccount">
+                                <span>Create an account for faster checkout next time</span>
+                            </label>
+                        </div>
+                    </form>
+
+                    <h3 class="payment-section-title">Payment Method</h3>
+                    <div class="payment-methods">
+                        <button class="payment-method-btn active" data-method="stripe" id="stripeBtn">
+                            <span class="payment-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="2" y="6" width="20" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    <line x1="6" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="2"/>
+                                    <line x1="6" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </span>
+                            <span>Credit Card</span>
+                        </button>
+                        <button class="payment-method-btn" data-method="paypal" id="paypalBtn">
+                            <span class="payment-icon">
+                                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
+                            </span>
+                            <span>PayPal</span>
+                        </button>
+                        <button class="payment-method-btn" data-method="applepay" id="applePayBtn" style="display:none;">
+                            <span class="payment-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                                </svg>
+                            </span>
+                            <span>Apple Pay</span>
+                        </button>
+                        <button class="payment-method-btn" data-method="googlepay" id="googlePayBtn" style="display:none;">
+                            <span class="payment-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                </svg>
+                            </span>
+                            <span>Google Pay</span>
+                        </button>
+                    </div>
+
+                    <!-- Stripe Payment Form -->
+                    <div id="stripePaymentForm" class="payment-form active">
+                        <div id="stripeCardElement" class="stripe-element">
+                            <!-- Stripe Elements will create form elements here -->
+                        </div>
+                        <div id="stripeCardErrors" role="alert" class="payment-error"></div>
+                        <button type="button" id="stripeSubmitBtn" class="btn btn-primary payment-submit-btn">
+                            <span class="btn-text">Pay Now</span>
+                            <span class="btn-loader" style="display:none;">Processing...</span>
+                        </button>
+                    </div>
+
+                    <!-- PayPal Payment Form -->
+                    <div id="paypalPaymentForm" class="payment-form">
+                        <div id="paypalButtonContainer"></div>
+                    </div>
+
+                    <!-- Apple Pay Payment Form -->
+                    <div id="applePayPaymentForm" class="payment-form">
+                        <button type="button" id="applePayButton" class="btn btn-primary payment-submit-btn apple-pay-btn" style="display:none;">
+                            <span class="btn-text">Pay with Apple Pay</span>
+                        </button>
+                    </div>
+
+                    <!-- Google Pay Payment Form -->
+                    <div id="googlePayPaymentForm" class="payment-form">
+                        <div id="googlePayButtonContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Success Modal -->
+    <div id="paymentSuccessModal" class="payment-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content payment-success-content">
+            <div class="payment-success-body">
+                <div class="success-icon">✓</div>
+                <h2>Payment Successful!</h2>
+                <p>Thank you for your purchase. You will receive a confirmation email shortly.</p>
+                <button class="btn btn-primary" onclick="closePaymentSuccessModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="payment.js"></script>
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, initializing shop functionality...');
+        });
+        
+        // Shop category filtering
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter products
+                const category = this.getAttribute('data-category');
+                const products = document.querySelectorAll('.product-card');
+                
+                products.forEach(product => {
+                    if (category === 'all' || product.getAttribute('data-category') === category) {
+                        product.style.display = 'block';
+                        setTimeout(() => {
+                            product.style.opacity = '1';
+                            product.style.transform = 'translateY(0)';
+                        }, 10);
+                    } else {
+                        product.style.opacity = '0';
+                        product.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            product.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+
+        // Product descriptions data
+        const productDescriptions = {
+            supporter: {
+                title: 'Supporter Package',
+                price: '$10.00',
+                description: '<p>Show your support for the Heart of Acheron server and help us keep it running smoothly. This package includes:</p><ul><li>Supporter role in Discord</li><li>Special supporter badge</li><li>Our eternal gratitude</li><li>Helps maintain server quality and uptime</li></ul>',
+                image: 'images/shop/item-supporter.jpg'
+            },
+            hero: {
+                title: 'Hero Package',
+                price: '$25.00',
+                description: '<p>Become a hero of the server with this premium support package. Includes everything from Supporter Package plus:</p><ul><li>Hero role in Discord</li><li>Exclusive hero badge and title</li><li>Priority support ticket access</li><li>Access to hero-only channels</li><li>Special recognition on the website</li></ul>',
+                image: 'images/shop/item-hero.jpg'
+            },
+            legend: {
+                title: 'Legend Package',
+                price: '$50.00',
+                description: '<p>The ultimate support package for true legends of the server. Includes everything from Hero Package plus:</p><ul><li>Legend role in Discord</li><li>Exclusive legend badge and title</li><li>Highest priority support</li><li>Access to all exclusive channels</li><li>Featured recognition on website and in-game</li><li>Special thank you message from admins</li></ul>',
+                image: 'images/shop/item-legend.jpg'
+            },
+            weapon: {
+                title: 'Legendary Weapon',
+                price: '$5.00',
+                description: '<p>Powerful weapon to aid you in your adventures. This package includes:</p><ul><li>One legendary weapon of your choice</li><li>Maximum durability</li><li>Custom enchantments</li><li>Delivery within 24 hours</li><li>Perfect for PvP and PvE content</li></ul>',
+                image: 'images/shop/item-weapon.jpg'
+            },
+            armor: {
+                title: 'Elite Armor Set',
+                price: '$8.00',
+                description: '<p>Complete armor set for maximum protection. This package includes:</p><ul><li>Full elite armor set (all pieces)</li><li>Maximum durability</li><li>Custom stats and bonuses</li><li>Matching set bonus</li><li>Delivery within 24 hours</li></ul>',
+                image: 'images/shop/item-armor.jpg'
+            },
+            resources: {
+                title: 'Resource Pack',
+                price: '$3.00',
+                description: '<p>Essential resources to get you started. This package includes:</p><ul><li>Large quantity of basic resources</li><li>Iron, stone, wood, and more</li><li>Perfect for new players</li><li>Helps speed up early game progress</li><li>Delivery within 12 hours</li></ul>',
+                image: 'images/shop/item-resources.jpg'
+            },
+            vip: {
+                title: 'VIP Status (1 Month)',
+                price: '$15.00',
+                description: '<p>Enjoy VIP benefits including priority support and exclusive features. VIP status includes:</p><ul><li>VIP role in Discord</li><li>Priority support tickets</li><li>Access to VIP-only channels</li><li>Exclusive VIP badge</li><li>Monthly VIP rewards</li><li>Special VIP commands</li></ul>',
+                image: 'images/shop/item-vip.jpg'
+            },
+            boost: {
+                title: 'Experience Boost (7 Days)',
+                price: '$7.00',
+                description: '<p>Double your experience gain for 7 days. This boost includes:</p><ul><li>2x experience multiplier</li><li>Applies to all activities</li><li>7-day duration</li><li>Stackable with other bonuses</li><li>Automatic activation upon purchase</li></ul>',
+                image: 'images/shop/item-boost.jpg'
+            },
+            custom: {
+                title: 'Custom Name Color',
+                price: '$4.00',
+                description: '<p>Stand out with a custom colored name in-game. This package includes:</p><ul><li>Custom name color of your choice</li><li>Works in-game and Discord</li><li>Permanent color change</li><li>Can be changed later for additional fee</li><li>Applied within 24 hours</li></ul>',
+                image: 'images/shop/item-custom.jpg'
+            }
+        };
+
+        // Make product cards clickable (except purchase button)
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function(e) {
+                // Don't open modal if clicking the purchase button
+                if (e.target.classList.contains('btn') || e.target.closest('.btn')) {
+                    return;
+                }
+                
+                const productId = this.getAttribute('data-product');
+                const product = productDescriptions[productId];
+                
+                if (product) {
+                    document.getElementById('modalTitle').textContent = product.title;
+                    document.getElementById('modalPrice').textContent = product.price;
+                    document.getElementById('modalDescription').innerHTML = product.description;
+                    const modalImg = document.getElementById('modalImage');
+                    modalImg.src = product.image;
+                    modalImg.alt = '';
+                    modalImg.onerror = function() {
+                        this.style.display = 'none';
+                        this.parentElement.style.background = 'linear-gradient(135deg, rgba(107,44,145,0.5), rgba(212,175,55,0.3))';
+                    };
+                    modalImg.onload = function() {
+                        this.style.display = 'block';
+                        this.parentElement.style.background = '';
+                    };
+                    document.getElementById('productModal').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+
+        // Modal close functionality
+        const modal = document.getElementById('productModal');
+        const closeBtn = document.querySelector('.modal-close');
+        const overlay = document.querySelector('.modal-overlay');
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Purchase button handler in modal - use event delegation
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.modal-purchase-btn')) {
+                const btn = e.target.closest('.modal-purchase-btn');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get the product that was clicked to open the modal
+                let productId = null;
+                const activeCards = document.querySelectorAll('.product-card');
+                activeCards.forEach(card => {
+                    if (card.style.display !== 'none') {
+                        productId = card.getAttribute('data-product');
+                    }
+                });
+                
+                if (!productId) {
+                    // Fallback: try to get from any visible card
+                    productId = document.querySelector('.product-card[data-product]')?.getAttribute('data-product');
+                }
+                
+                const product = productDescriptions[productId];
+                if (product) {
+                    // Close product modal first
+                    if (typeof closeModal === 'function') {
+                        closeModal();
+                    }
+                    
+                    // Open payment modal
+                    setTimeout(() => {
+                        if (typeof window.openPaymentModal === 'function') {
+                            window.openPaymentModal(product);
+                        } else {
+                            // Wait and retry
+                            setTimeout(() => {
+                                if (typeof window.openPaymentModal === 'function') {
+                                    window.openPaymentModal(product);
+                                } else {
+                                    console.error('Payment modal function not available');
+                                }
+                            }, 200);
+                        }
+                    }, 300);
+                } else {
+                    console.error('Product not found', { productId });
+                }
+            }
+        });
+
+        // Purchase button handler in cards - use event delegation
+        function handlePurchaseClick(e) {
+            if (e.target.closest('.product-card .btn')) {
+                const btn = e.target.closest('.product-card .btn');
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productCard = btn.closest('.product-card');
+                const productId = productCard.getAttribute('data-product');
+                const product = productDescriptions[productId];
+                
+                if (product) {
+                    // Try to open payment modal
+                    if (typeof window.openPaymentModal === 'function') {
+                        window.openPaymentModal(product);
+                    } else {
+                        // Wait a bit and try again
+                        setTimeout(() => {
+                            if (typeof window.openPaymentModal === 'function') {
+                                window.openPaymentModal(product);
+                            } else {
+                                console.error('Payment system not loaded. Check if payment.js is loading correctly.');
+                                // Try to load payment.js if it failed
+                                const script = document.createElement('script');
+                                script.src = 'payment.js';
+                                script.onload = function() {
+                                    if (typeof window.openPaymentModal === 'function') {
+                                        window.openPaymentModal(product);
+                                    }
+                                };
+                                document.body.appendChild(script);
+                            }
+                        }, 100);
+                    }
+                }
+            }
+        }
+        
+        // Attach event listener
+        document.addEventListener('click', handlePurchaseClick);
+    </script>
+</body>
+</html>
+
