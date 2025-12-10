@@ -1,12 +1,22 @@
 // Payment System Implementation
 // Initialize payment providers and handle payment processing
 
+// Escape HTML to prevent XSS attacks
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Test/Demo Mode Configuration
 const TEST_MODE = true; // Set to false when deploying to production with real credentials
 const TEST_MODE_DELAY = 1500; // Simulated payment processing delay in milliseconds
 
 // Backend API Configuration
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000'; // Set this in your HTML or environment
+// Use API_BASE_URL from auth.js if available, otherwise set it
+const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+window.API_BASE_URL = API_BASE; // Make sure it's available globally
 
 // Payment configuration
 const paymentConfig = {
@@ -498,13 +508,32 @@ async function handleStripePayment() {
         return;
     }
 
-    if (TEST_MODE) {
-        // Test mode - simulate payment processing
-        console.log('🧪 TEST MODE: Simulating Stripe payment...');
+    // Check for developer mode
+    const isDevMode = window.devMode && window.devMode.isEnabled();
+    
+    if (TEST_MODE || isDevMode) {
+        // Test/Dev mode - simulate payment processing
+        console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Stripe payment...');
         console.log('Customer Data:', customerData);
         console.log('Product:', paymentConfig.currentProduct);
         
         setTimeout(() => {
+            // In dev mode, add mock order
+            if (isDevMode && window.mockData) {
+                const mockOrder = window.mockData.addOrder({
+                    customer_email: customerData.email,
+                    steam_id: customerData.steamId,
+                    character_name: customerData.characterName,
+                    product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
+                    product_name: paymentConfig.currentProduct.title,
+                    price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
+                    payment_provider: 'stripe',
+                    payment_intent_id: 'dev_mode_' + Date.now(),
+                    status: 'delivered'
+                });
+                console.log('Mock order created:', mockOrder);
+            }
+            
             showPaymentSuccess(customerData);
             btnText.style.display = 'inline';
             btnLoader.style.display = 'none';
@@ -521,7 +550,7 @@ async function handleStripePayment() {
                          getProductIdFromTitle(paymentConfig.currentProduct.title);
 
         // Create payment intent with metadata
-        const response = await fetch(`${API_BASE_URL}/api/create-payment-intent`, {
+        const response = await fetch(`${API_BASE}/api/create-payment-intent`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -615,9 +644,26 @@ function initializePayPal() {
             mockButton.disabled = true;
             mockButton.innerHTML = '<span class="btn-loader">Processing...</span>';
             
-            console.log('🧪 TEST MODE: Simulating PayPal payment...');
+            const isDevMode = window.devMode && window.devMode.isEnabled();
+            console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating PayPal payment...');
             
             setTimeout(() => {
+                // In dev mode, add mock order
+                if (isDevMode && window.mockData) {
+                    const mockOrder = window.mockData.addOrder({
+                        customer_email: customerData.email,
+                        steam_id: customerData.steamId,
+                        character_name: customerData.characterName,
+                        product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
+                        product_name: paymentConfig.currentProduct.title,
+                        price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
+                        payment_provider: 'paypal',
+                        payment_intent_id: 'dev_mode_paypal_' + Date.now(),
+                        status: 'delivered'
+                    });
+                    console.log('Mock order created:', mockOrder);
+                }
+                
                 showPaymentSuccess(customerData);
                 mockButton.disabled = false;
                 mockButton.innerHTML = '<span class="btn-text">Pay with PayPal (Test Mode)</span>';
@@ -693,13 +739,37 @@ function initializeApplePay() {
             return;
         }
 
-        if (TEST_MODE) {
-            // Test mode - simulate Apple Pay
-            console.log('🧪 TEST MODE: Simulating Apple Pay payment...');
+        const isDevMode = window.devMode && window.devMode.isEnabled();
+        
+        if (TEST_MODE || isDevMode) {
+            // Test/Dev mode - simulate Apple Pay
+            console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Apple Pay payment...');
             button.disabled = true;
             button.innerHTML = '<span class="btn-loader">Processing...</span>';
             
             setTimeout(() => {
+                // In dev mode, add mock order
+                if (isDevMode && window.mockData) {
+                    const customerData = {
+                        name: document.getElementById('customerName').value,
+                        email: document.getElementById('customerEmail').value,
+                        characterName: document.getElementById('characterName').value.trim(),
+                        steamId: document.getElementById('steamId').value.trim() || null
+                    };
+                    const mockOrder = window.mockData.addOrder({
+                        customer_email: customerData.email,
+                        steam_id: customerData.steamId,
+                        character_name: customerData.characterName,
+                        product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
+                        product_name: paymentConfig.currentProduct.title,
+                        price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
+                        payment_provider: 'apple_pay',
+                        payment_intent_id: 'dev_mode_apple_' + Date.now(),
+                        status: 'delivered'
+                    });
+                    console.log('Mock order created:', mockOrder);
+                }
+                
                 showPaymentSuccess();
                 button.disabled = false;
                 button.innerHTML = '<span class="btn-text">Pay with Apple Pay</span>';
@@ -750,9 +820,11 @@ function onGooglePayButtonClicked() {
         return;
     }
 
-    if (TEST_MODE) {
-        // Test mode - simulate Google Pay
-        console.log('🧪 TEST MODE: Simulating Google Pay payment...');
+    const isDevMode = window.devMode && window.devMode.isEnabled();
+    
+    if (TEST_MODE || isDevMode) {
+        // Test/Dev mode - simulate Google Pay
+        console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Google Pay payment...');
         
         // Show loading state
         const button = document.querySelector('#googlePayButtonContainer button');
@@ -762,6 +834,28 @@ function onGooglePayButtonClicked() {
         }
         
         setTimeout(() => {
+            // In dev mode, add mock order
+            if (isDevMode && window.mockData) {
+                const customerData = {
+                    name: document.getElementById('customerName').value,
+                    email: document.getElementById('customerEmail').value,
+                    characterName: document.getElementById('characterName').value.trim(),
+                    steamId: document.getElementById('steamId').value.trim() || null
+                };
+                const mockOrder = window.mockData.addOrder({
+                    customer_email: customerData.email,
+                    steam_id: customerData.steamId,
+                    character_name: customerData.characterName,
+                    product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
+                    product_name: paymentConfig.currentProduct.title,
+                    price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
+                    payment_provider: 'google_pay',
+                    payment_intent_id: 'dev_mode_google_' + Date.now(),
+                    status: 'delivered'
+                });
+                console.log('Mock order created:', mockOrder);
+            }
+            
             showPaymentSuccess();
             if (button) {
                 button.disabled = false;
@@ -831,7 +925,10 @@ function showPaymentSuccess(customerData = null, orderId = null) {
     if (customerData && customerData.characterName) {
         const message = successBody.querySelector('p');
         if (message) {
-            message.innerHTML = `Thank you for your purchase! Your items are being delivered to <strong>${customerData.characterName}</strong> right now. You will receive a confirmation email shortly.${orderId ? `<br><br><small>Order ID: ${orderId}</small>` : ''}`;
+            // Escape HTML to prevent XSS
+            const safeCharacterName = escapeHtml(customerData.characterName);
+            const safeOrderId = orderId ? escapeHtml(orderId) : '';
+            message.innerHTML = `Thank you for your purchase! Your items are being delivered to <strong>${safeCharacterName}</strong> right now. You will receive a confirmation email shortly.${safeOrderId ? `<br><br><small>Order ID: ${safeOrderId}</small>` : ''}`;
         }
     }
     

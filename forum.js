@@ -1,11 +1,14 @@
 // Forum JavaScript
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+// Use API_BASE_URL from auth.js if available, otherwise set it
+const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+window.API_BASE_URL = API_BASE; // Make sure it's available globally
 
 let currentView = 'categories'; // 'categories', 'topics', 'topic'
 let currentCategoryId = null;
 let currentTopicId = null;
 let categories = [];
-let currentUser = null;
+// Don't redeclare currentUser - use the one from auth.js via window.getCurrentUser()
+let forumCurrentUser = null;
 
 // Initialize forum
 document.addEventListener('DOMContentLoaded', function() {
@@ -21,19 +24,19 @@ async function checkAuthState() {
         try {
             // Try to get user from auth.js
             if (window.getCurrentUser) {
-                currentUser = window.getCurrentUser();
+                forumCurrentUser = window.getCurrentUser();
             }
             
             // If not available, try API
-            if (!currentUser) {
-                const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            if (!forumCurrentUser) {
+                const response = await fetch(`${API_BASE}/api/auth/me`, {
                     headers: {
                         'Authorization': `Bearer ${authToken}`
                     }
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    currentUser = data.user;
+                    forumCurrentUser = data.user;
                 }
             }
         } catch (error) {
@@ -41,10 +44,11 @@ async function checkAuthState() {
         }
     }
     
-    // Show/hide new topic button
+    // Show/hide new topic button (show if user logged in OR dev mode)
     const newTopicBtn = document.getElementById('newTopicBtn');
     if (newTopicBtn) {
-        newTopicBtn.style.display = currentUser ? 'block' : 'none';
+        const isDevMode = window.devMode && window.devMode.isEnabled();
+        newTopicBtn.style.display = (forumCurrentUser || isDevMode) ? 'block' : 'none';
     }
 }
 
@@ -153,14 +157,20 @@ async function loadCategories() {
     errorDiv.style.display = 'none';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forum/categories`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to load categories');
-        }
+        // Check for developer mode first
+        if (window.devMode && window.devMode.isEnabled()) {
+            console.log('Developer mode: Loading mock forum categories');
+            categories = window.mockData.getForumCategories();
+        } else {
+            const response = await fetch(`${API_BASE}/api/forum/categories`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to load categories');
+            }
 
-        const data = await response.json();
-        categories = data.categories || [];
+            const data = await response.json();
+            categories = data.categories || [];
+        }
 
         if (categories.length === 0) {
             grid.innerHTML = '<p style="text-align: center; opacity: 0.9;">No categories available.</p>';
@@ -205,22 +215,30 @@ async function loadTopics(categoryId) {
             categoryTitle.textContent = category.name;
         }
 
+        let topics = [];
+        
+        // Check for developer mode first
+        if (window.devMode && window.devMode.isEnabled()) {
+            console.log('Developer mode: Loading mock forum topics');
+            topics = window.mockData.getForumTopics(categoryId);
+        } else {
         const authToken = localStorage.getItem('authToken');
         const headers = {};
         if (authToken) {
             headers['Authorization'] = `Bearer ${authToken}`;
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/forum/topics/${categoryId}`, {
-            headers
-        });
+            const response = await fetch(`${API_BASE}/api/forum/topics/${categoryId}`, {
+                headers
+            });
 
-        if (!response.ok) {
-            throw new Error('Failed to load topics');
+            if (!response.ok) {
+                throw new Error('Failed to load topics');
+            }
+
+            const data = await response.json();
+            topics = data.topics || [];
         }
-
-        const data = await response.json();
-        const topics = data.topics || [];
 
         if (topics.length === 0) {
             list.innerHTML = '<div class="server-info-card" style="text-align: center; padding: 3rem;"><p style="opacity: 0.9;">No topics yet. Be the first to create one!</p></div>';
@@ -273,23 +291,43 @@ async function loadTopic(topicId) {
     errorDiv.style.display = 'none';
 
     try {
-        const authToken = localStorage.getItem('authToken');
-        const headers = {};
-        if (authToken) {
-            headers['Authorization'] = `Bearer ${authToken}`;
+        let topic = null;
+        let posts = [];
+        
+        // Check for developer mode first
+        if (window.devMode && window.devMode.isEnabled()) {
+            console.log('Developer mode: Loading mock forum topic');
+            // Find topic in mock data
+            const allTopics = window.mockData.getForumTopics(currentCategoryId || 'general');
+            topic = allTopics.find(t => t.topic_id === topicId);
+            if (topic) {
+                posts = window.mockData.getForumPosts(topicId);
+                // Increment views
+                topic.views = (topic.views || 0) + 1;
+            }
+        } else {
+            const authToken = localStorage.getItem('authToken');
+            const headers = {};
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const response = await fetch(`${API_BASE}/api/forum/topic/${topicId}`, {
+                headers
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load topic');
+            }
+
+            const data = await response.json();
+            topic = data.topic;
+            posts = data.posts || [];
         }
-
-        const response = await fetch(`${API_BASE_URL}/api/forum/topic/${topicId}`, {
-            headers
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to load topic');
+        
+        if (!topic) {
+            throw new Error('Topic not found');
         }
-
-        const data = await response.json();
-        const topic = data.topic;
-        const posts = data.posts || [];
 
         // Display topic header
         const topicDate = new Date(topic.created_at).toLocaleString();
@@ -320,7 +358,7 @@ async function loadTopic(topicId) {
             postsList.innerHTML = posts.map(post => {
                 const postDate = new Date(post.created_at).toLocaleString();
                 const editedNote = post.edited_at ? ` (edited ${new Date(post.edited_at).toLocaleString()})` : '';
-                const isOwnPost = currentUser && post.user_id === currentUser.userId;
+                const isOwnPost = forumCurrentUser && post.user_id === forumCurrentUser.userId;
                 
                 return `
                     <div class="forum-post-item" data-post-id="${post.post_id}">
@@ -344,8 +382,9 @@ async function loadTopic(topicId) {
             }).join('');
         }
 
-        // Show reply section if not locked and user is logged in
-        if (topic.locked !== 1 && currentUser) {
+        // Show reply section if not locked and (user is logged in OR dev mode)
+        const isDevMode = window.devMode && window.devMode.isEnabled();
+        if (topic.locked !== 1 && (forumCurrentUser || isDevMode)) {
             replySection.style.display = 'block';
         } else {
             replySection.style.display = 'none';
@@ -364,7 +403,8 @@ async function loadTopic(topicId) {
 
 // Open new topic modal
 function openNewTopicModal() {
-    if (!currentUser) {
+    const isDevMode = window.devMode && window.devMode.isEnabled();
+    if (!forumCurrentUser && !isDevMode) {
         alert('Please log in to create a topic');
         window.location.href = 'login.html?return=forum.html';
         return;
@@ -395,39 +435,57 @@ async function handleNewTopic(e) {
         return;
     }
 
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-        alert('Please log in to create a topic');
-        window.location.href = 'login.html?return=forum.html';
-        return;
+    const isDevMode = window.devMode && window.devMode.isEnabled();
+    
+    if (!isDevMode) {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('Please log in to create a topic');
+            window.location.href = 'login.html?return=forum.html';
+            return;
+        }
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forum/topic`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
+        let topicData = null;
+        
+        if (isDevMode) {
+            // Use mock data
+            console.log('Developer mode: Creating mock topic');
+            topicData = window.mockData.addForumTopic({
                 category_id: categoryId,
+                user_id: 'mock_user_12345',
                 title: title,
                 content: content
-            })
-        });
+            });
+        } else {
+            const response = await fetch(`${API_BASE}/api/forum/topic`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    category_id: categoryId,
+                    title: title,
+                    content: content
+                })
+            });
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to create topic');
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to create topic');
+            }
+
+            const data = await response.json();
+            topicData = data.topic;
         }
-
-        const data = await response.json();
         
         // Close modal
         document.getElementById('newTopicModal').classList.remove('active');
         
         // Show the new topic
-        showView('topic', null, data.topic.topic_id);
+        showView('topic', null, topicData.topic_id);
 
     } catch (error) {
         console.error('Error creating topic:', error);
@@ -446,29 +504,44 @@ async function handleReply(e) {
         return;
     }
 
-    const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
-        alert('Please log in to post a reply');
-        window.location.href = 'login.html?return=forum.html';
-        return;
+    const isDevMode = window.devMode && window.devMode.isEnabled();
+    
+    if (!isDevMode) {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('Please log in to post a reply');
+            window.location.href = 'login.html?return=forum.html';
+            return;
+        }
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forum/post`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
+        if (isDevMode) {
+            // Use mock data
+            console.log('Developer mode: Creating mock post');
+            window.mockData.addForumPost({
                 topic_id: currentTopicId,
-                content: content
-            })
-        });
+                user_id: 'mock_user_12345',
+                content: content,
+                category_id: currentCategoryId || 'general'
+            });
+        } else {
+            const response = await fetch(`${API_BASE}/api/forum/post`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    topic_id: currentTopicId,
+                    content: content
+                })
+            });
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to post reply');
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to post reply');
+            }
         }
 
         // Clear form and reload topic
@@ -501,7 +574,7 @@ async function editPost(postId) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forum/post/${postId}`, {
+        const response = await fetch(`${API_BASE}/api/forum/post/${postId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -539,7 +612,7 @@ async function deletePost(postId) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forum/post/${postId}`, {
+        const response = await fetch(`${API_BASE}/api/forum/post/${postId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${authToken}`

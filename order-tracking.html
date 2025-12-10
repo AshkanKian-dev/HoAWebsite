@@ -88,9 +88,12 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="mock-data.js"></script>
+    <script src="dev-mode.js"></script>
     <script src="auth.js"></script>
     <script>
-        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+        // Use API_BASE_URL from auth.js
+        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
 
         // Load transaction history when page loads
         window.addEventListener('load', async function() {
@@ -110,6 +113,22 @@
             noTransactionsDiv.style.display = 'none';
 
             try {
+                // Check for developer mode first
+                if (window.devMode && window.devMode.isEnabled()) {
+                    console.log('Developer mode: Loading mock transaction history');
+                    const mockOrders = window.mockData.getOrders();
+                    
+                    loadingDiv.style.display = 'none';
+                    
+                    if (mockOrders.length === 0) {
+                        noTransactionsDiv.style.display = 'block';
+                    } else {
+                        displayTransactionHistory(mockOrders);
+                        historyDiv.style.display = 'block';
+                    }
+                    return;
+                }
+
                 // Check if user is logged in
                 const authToken = localStorage.getItem('authToken');
                 if (!authToken) {
@@ -124,7 +143,7 @@
                 // Try to get user info (check if using mock auth)
                 try {
                     // Try backend first
-                    const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                    const userResponse = await fetch(`${API_BASE}/api/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${authToken}`
                         }
@@ -135,7 +154,7 @@
                         userEmail = userData.user.email;
 
                         // Fetch transactions from backend
-                        const transactionsResponse = await fetch(`${API_BASE_URL}/api/orders/email/${encodeURIComponent(userEmail)}`, {
+                        const transactionsResponse = await fetch(`${API_BASE}/api/orders/email/${encodeURIComponent(userEmail)}`, {
                             headers: {
                                 'Authorization': `Bearer ${authToken}`
                             }

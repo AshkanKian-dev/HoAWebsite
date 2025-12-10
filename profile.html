@@ -116,14 +116,33 @@
     </footer>
 
     <script src="script.js"></script>
+    <script src="mock-data.js"></script>
+    <script src="dev-mode.js"></script>
     <script src="auth.js"></script>
     <script>
-        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+        // API_BASE_URL is already set in auth.js, just use window.API_BASE_URL
+        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+
+        // Check for dev mode immediately and load if needed
+        (function checkDevModeImmediate() {
+            const isDevMode = localStorage.getItem('hoa_dev_mode_enabled') === 'true';
+            if (isDevMode && window.mockData && document.readyState !== 'loading') {
+                // DOM is ready, load immediately
+                setTimeout(() => loadProfile(), 50);
+            }
+        })();
 
         // Load profile data when page loads
         window.addEventListener('load', async function() {
             await loadProfile();
         });
+        
+        // Also try on DOMContentLoaded for faster loading
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', async function() {
+                await loadProfile();
+            });
+        }
 
         async function loadProfile() {
             const loadingDiv = document.getElementById('loadingMessage');
@@ -136,9 +155,24 @@
             errorDiv.style.display = 'none';
 
             try {
-                // Check if user is logged in
+                // Check for developer mode first (check localStorage directly for immediate check)
+                const isDevMode = localStorage.getItem('hoa_dev_mode_enabled') === 'true';
+                
+                if (isDevMode && window.mockData) {
+                    console.log('Developer mode: Loading mock profile data');
+                    const mockUser = window.mockData.getUserProfile();
+                    
+                    // Display mock profile data
+                    displayProfileData(mockUser);
+                    
+                    loadingDiv.style.display = 'none';
+                    profileDiv.style.display = 'block';
+                    return;
+                }
+
+                // Check if user is logged in (skip in dev mode)
                 const authToken = localStorage.getItem('authToken');
-                if (!authToken) {
+                if (!authToken && !isDevMode) {
                     // Redirect to login if not authenticated
                     window.location.href = 'login.html?return=profile.html';
                     return;
@@ -149,7 +183,7 @@
                 // Try to get user info
                 try {
                     // Try backend first
-                    const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                    const userResponse = await fetch(`${API_BASE}/api/auth/me`, {
                         headers: {
                             'Authorization': `Bearer ${authToken}`
                         }
@@ -204,29 +238,7 @@
                 }
 
                 // Display profile data
-                document.getElementById('characterName').textContent = userData.characterName || 'Unknown';
-                document.getElementById('characterNameValue').textContent = userData.characterName || 'Not set';
-                document.getElementById('userEmail').textContent = userData.email || 'Unknown';
-                document.getElementById('emailValue').textContent = userData.email || 'Not set';
-                document.getElementById('steamIdValue').textContent = userData.steamId || 'Not linked';
-                
-                if (userData.createdAt) {
-                    const createdDate = new Date(userData.createdAt);
-                    document.getElementById('memberSinceValue').textContent = createdDate.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                } else {
-                    document.getElementById('memberSinceValue').textContent = 'Unknown';
-                }
-                
-                if (userData.lastLogin) {
-                    const lastLoginDate = new Date(userData.lastLogin);
-                    document.getElementById('lastLoginValue').textContent = lastLoginDate.toLocaleString('en-US');
-                } else {
-                    document.getElementById('lastLoginValue').textContent = 'Never';
-                }
+                displayProfileData(userData);
 
                 loadingDiv.style.display = 'none';
                 profileDiv.style.display = 'block';
@@ -242,6 +254,32 @@
                         window.location.href = 'login.html?return=profile.html';
                     }, 2000);
                 }
+            }
+        }
+
+        function displayProfileData(userData) {
+            document.getElementById('characterName').textContent = userData.characterName || 'Unknown';
+            document.getElementById('characterNameValue').textContent = userData.characterName || 'Not set';
+            document.getElementById('userEmail').textContent = userData.email || 'Unknown';
+            document.getElementById('emailValue').textContent = userData.email || 'Not set';
+            document.getElementById('steamIdValue').textContent = userData.steamId || 'Not linked';
+            
+            if (userData.createdAt) {
+                const createdDate = new Date(userData.createdAt);
+                document.getElementById('memberSinceValue').textContent = createdDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            } else {
+                document.getElementById('memberSinceValue').textContent = 'Unknown';
+            }
+            
+            if (userData.lastLogin) {
+                const lastLoginDate = new Date(userData.lastLogin);
+                document.getElementById('lastLoginValue').textContent = lastLoginDate.toLocaleString('en-US');
+            } else {
+                document.getElementById('lastLoginValue').textContent = 'Never';
             }
         }
     </script>
