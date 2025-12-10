@@ -25,6 +25,26 @@
                     <li><a href="shop.html" class="nav-link active">Shop</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
                     <span></span>
                     <span></span>
@@ -221,6 +241,16 @@
                             <label for="customerPhone">Phone Number (Optional)</label>
                             <input type="tel" id="customerPhone" name="phone" placeholder="+1 (555) 123-4567">
                         </div>
+                        <div class="form-group">
+                            <label for="characterName">In-Game Character Name *</label>
+                            <input type="text" id="characterName" name="characterName" required placeholder="YourCharacterName" pattern="[a-zA-Z0-9\s\-_]{1,32}" title="1-32 characters, alphanumeric with spaces, hyphens, or underscores">
+                            <small style="display: block; margin-top: 0.5rem; opacity: 0.7; font-size: 0.85rem;">Enter your exact character name as it appears in-game. Items will be delivered immediately upon purchase.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="steamId">Steam ID (Optional)</label>
+                            <input type="text" id="steamId" name="steamId" placeholder="76561198000000000" pattern="[0-9]{17}" title="17-digit Steam ID (optional, helps with faster delivery)">
+                            <small style="display: block; margin-top: 0.5rem; opacity: 0.7; font-size: 0.85rem;">Your 17-digit Steam ID (optional but recommended for faster delivery)</small>
+                        </div>
                         <div class="form-group checkbox-group">
                             <label class="checkbox-label">
                                 <input type="checkbox" id="createAccount" name="createAccount">
@@ -308,19 +338,23 @@
             <div class="payment-success-body">
                 <div class="success-icon">✓</div>
                 <h2>Payment Successful!</h2>
-                <p>Thank you for your purchase. You will receive a confirmation email shortly.</p>
-                <button class="btn btn-primary" onclick="closePaymentSuccessModal()">Close</button>
+                <p id="successMessage">Thank you for your purchase. You will receive a confirmation email shortly.</p>
+                <div style="margin-top: 1rem;">
+                    <a href="order-tracking.html" class="btn btn-secondary" style="margin-right: 0.5rem;">Track Order</a>
+                    <button class="btn btn-primary" onclick="closePaymentSuccessModal()">Close</button>
+                </div>
             </div>
         </div>
     </div>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
+            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="script.js"></script>
+    <script src="auth.js"></script>
     <script src="payment.js"></script>
     <script>
         // Wait for everything to load

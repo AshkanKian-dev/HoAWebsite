@@ -5,6 +5,9 @@
 const TEST_MODE = true; // Set to false when deploying to production with real credentials
 const TEST_MODE_DELAY = 1500; // Simulated payment processing delay in milliseconds
 
+// Backend API Configuration
+const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000'; // Set this in your HTML or environment
+
 // Payment configuration
 const paymentConfig = {
     stripe: {
@@ -481,8 +484,19 @@ async function handleStripePayment() {
         name: document.getElementById('customerName').value,
         email: document.getElementById('customerEmail').value,
         phone: document.getElementById('customerPhone').value,
+        characterName: document.getElementById('characterName').value.trim(),
+        steamId: document.getElementById('steamId').value.trim() || null,
         createAccount: document.getElementById('createAccount').checked
     };
+
+    // Validate character name
+    if (!customerData.characterName) {
+        showPaymentError('Character name is required for delivery');
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
+        return;
+    }
 
     if (TEST_MODE) {
         // Test mode - simulate payment processing
@@ -491,7 +505,7 @@ async function handleStripePayment() {
         console.log('Product:', paymentConfig.currentProduct);
         
         setTimeout(() => {
-            showPaymentSuccess();
+            showPaymentSuccess(customerData);
             btnText.style.display = 'inline';
             btnLoader.style.display = 'none';
             submitBtn.disabled = false;
@@ -501,36 +515,55 @@ async function handleStripePayment() {
 
     // Production mode - actual Stripe payment processing
     try {
-        // In production, you would call your backend to create a payment intent
-        // const { clientSecret } = await fetch('/api/create-payment-intent', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({
-        //         amount: getAmountFromPrice(paymentConfig.currentProduct.price),
-        //         currency: 'usd',
-        //         product: paymentConfig.currentProduct
-        //     })
-        // }).then(r => r.json());
+        // Get product ID from current product
+        const productId = paymentConfig.currentProduct.productId || 
+                         paymentConfig.currentProduct.id || 
+                         getProductIdFromTitle(paymentConfig.currentProduct.title);
 
-        // In production, you would use:
-        // const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        //     payment_method: {
-        //         card: stripeCardElement,
-        //         billing_details: {
-        //             name: customerData.name,
-        //             email: customerData.email,
-        //             phone: customerData.phone
-        //         }
-        //     }
-        // });
+        // Create payment intent with metadata
+        const response = await fetch(`${API_BASE_URL}/api/create-payment-intent`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: Math.round(parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)) * 100), // Convert to cents
+                currency: 'usd',
+                product_id: productId,
+                metadata: {
+                    character_name: customerData.characterName,
+                    steam_id: customerData.steamId,
+                    email: customerData.email,
+                    product_name: paymentConfig.currentProduct.title
+                }
+            })
+        });
 
-        // For now, simulate payment processing
-        setTimeout(() => {
-            showPaymentSuccess();
-            btnText.style.display = 'inline';
-            btnLoader.style.display = 'none';
-            submitBtn.disabled = false;
-        }, TEST_MODE_DELAY);
+        if (!response.ok) {
+            throw new Error('Failed to create payment intent');
+        }
+
+        const { clientSecret } = await response.json();
+
+        // Confirm payment with Stripe
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: stripeCardElement,
+                billing_details: {
+                    name: customerData.name,
+                    email: customerData.email,
+                    phone: customerData.phone
+                }
+            }
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        // Payment successful - webhook will handle delivery
+        showPaymentSuccess(customerData, paymentIntent.id);
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
 
     } catch (error) {
         console.error('Payment error:', error);
@@ -559,11 +592,23 @@ function initializePayPal() {
         mockButton.innerHTML = `
             <span class="btn-text">Pay with PayPal (Test Mode)</span>
         `;
-        mockButton.onclick = function() {
+        mockButton.onclick = async function() {
             // Validate customer info form
             const customerForm = document.getElementById('customerInfoForm');
             if (!customerForm.checkValidity()) {
                 customerForm.reportValidity();
+                return;
+            }
+            
+            const customerData = {
+                name: document.getElementById('customerName').value,
+                email: document.getElementById('customerEmail').value,
+                characterName: document.getElementById('characterName').value.trim(),
+                steamId: document.getElementById('steamId').value.trim() || null
+            };
+
+            if (!customerData.characterName) {
+                showPaymentError('Character name is required for delivery');
                 return;
             }
             
@@ -573,7 +618,7 @@ function initializePayPal() {
             console.log('🧪 TEST MODE: Simulating PayPal payment...');
             
             setTimeout(() => {
-                showPaymentSuccess();
+                showPaymentSuccess(customerData);
                 mockButton.disabled = false;
                 mockButton.innerHTML = '<span class="btn-text">Pay with PayPal (Test Mode)</span>';
             }, TEST_MODE_DELAY);
@@ -588,6 +633,16 @@ function initializePayPal() {
         return;
     }
 
+    // Get customer data
+    const customerData = {
+        name: document.getElementById('customerName').value,
+        email: document.getElementById('customerEmail').value,
+        characterName: document.getElementById('characterName').value.trim(),
+        steamId: document.getElementById('steamId').value.trim() || null
+    };
+
+    const productId = getProductIdFromTitle(paymentConfig.currentProduct.title);
+
     paypal.Buttons({
         createOrder: function(data, actions) {
             return actions.order.create({
@@ -596,12 +651,18 @@ function initializePayPal() {
                         value: getAmountFromPrice(paymentConfig.currentProduct.price)
                     },
                     description: paymentConfig.currentProduct.title
-                }]
+                }],
+                custom_id: JSON.stringify({
+                    character_name: customerData.characterName,
+                    steam_id: customerData.steamId,
+                    product_id: productId,
+                    email: customerData.email
+                })
             });
         },
         onApprove: function(data, actions) {
             return actions.order.capture().then(function(details) {
-                showPaymentSuccess();
+                showPaymentSuccess(customerData, details.id);
             });
         },
         onError: function(err) {
@@ -761,10 +822,37 @@ function getAmountFromPrice(priceString) {
 }
 
 // Show payment success
-function showPaymentSuccess() {
+function showPaymentSuccess(customerData = null, orderId = null) {
     closePaymentModal();
-    document.getElementById('paymentSuccessModal').classList.add('active');
+    const successModal = document.getElementById('paymentSuccessModal');
+    const successBody = successModal.querySelector('.payment-success-body');
+    
+    // Update success message with delivery info
+    if (customerData && customerData.characterName) {
+        const message = successBody.querySelector('p');
+        if (message) {
+            message.innerHTML = `Thank you for your purchase! Your items are being delivered to <strong>${customerData.characterName}</strong> right now. You will receive a confirmation email shortly.${orderId ? `<br><br><small>Order ID: ${orderId}</small>` : ''}`;
+        }
+    }
+    
+    successModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+// Helper function to get product ID from title
+function getProductIdFromTitle(title) {
+    const productMap = {
+        'Supporter Package': 'supporter',
+        'Hero Package': 'hero',
+        'Legend Package': 'legend',
+        'Legendary Weapon': 'weapon',
+        'Elite Armor Set': 'armor',
+        'Resource Pack': 'resources',
+        'VIP Status (1 Month)': 'vip',
+        'Experience Boost (7 Days)': 'boost',
+        'Custom Name Color': 'custom'
+    };
+    return productMap[title] || title.toLowerCase().replace(/\s+/g, '-');
 }
 
 // Show payment error

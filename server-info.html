@@ -21,6 +21,26 @@
                     <li><a href="shop.html" class="nav-link">Shop</a></li>
                     <li><a href="contact.html" class="nav-link">Contact</a></li>
                 </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
                 <button class="mobile-menu-toggle" aria-label="Toggle menu">
                     <span></span>
                     <span></span>
@@ -112,11 +132,12 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Heart of Acheron. All rights reserved.</p>
+            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="script.js"></script>
+    <script src="auth.js"></script>
     <script>
         function copyToClipboard(elementId) {
             const element = document.getElementById(elementId);

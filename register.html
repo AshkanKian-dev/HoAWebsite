@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create an account - Heart of Acheron">
+    <title>Create Account - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    </script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="auth-container">
+            <div class="auth-card">
+                <h2>Create Account</h2>
+                <p class="subtitle">Join the Heart of Acheron community</p>
+
+                <div id="authAlert" class="auth-alert"></div>
+
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="regEmail">Email Address *</label>
+                        <input type="email" id="regEmail" name="email" required placeholder="your.email@example.com" autocomplete="email">
+                        <span class="error-message" id="regEmailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">Password *</label>
+                        <input type="password" id="regPassword" name="password" required placeholder="Create a strong password" autocomplete="new-password">
+                        <div class="password-strength">
+                            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                        </div>
+                        <span class="password-strength-text" id="passwordStrengthText"></span>
+                        <span class="error-message" id="regPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm your password" autocomplete="new-password">
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="characterName">In-Game Character Name *</label>
+                        <input type="text" id="characterName" name="characterName" required placeholder="YourCharacterName" pattern="[a-zA-Z0-9\s\-_]{1,32}" title="1-32 characters, alphanumeric with spaces, hyphens, or underscores">
+                        <span class="error-message" id="characterNameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="steamId">Steam ID (Optional)</label>
+                        <input type="text" id="steamId" name="steamId" placeholder="76561198000000000" pattern="[0-9]{17}" title="17-digit Steam ID">
+                        <span class="error-message" id="steamIdError"></span>
+                        <small style="display: block; margin-top: 0.5rem; opacity: 0.7; font-size: 0.85rem;">Your 17-digit Steam ID for faster in-game deliveries</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="displayName">Display Name (Optional)</label>
+                        <input type="text" id="displayName" name="displayName" placeholder="Your Display Name" maxlength="50">
+                        <span class="error-message" id="displayNameError"></span>
+                        <small style="display: block; margin-top: 0.5rem; opacity: 0.7; font-size: 0.85rem;">How you'd like to be displayed on your profile</small>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="termsAccepted" name="termsAccepted" required>
+                        <label for="termsAccepted" style="flex: 1;">I agree to the Terms of Service and Privacy Policy</label>
+                    </div>
+                    <span class="error-message" id="termsError" style="display: none; margin-top: -1rem; margin-bottom: 1rem;"></span>
+
+                    <button type="submit" class="btn btn-primary auth-submit-btn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader">Creating account...</span>
+                    </button>
+                </form>
+
+                <div class="auth-divider">or</div>
+
+                <div style="text-align: center;">
+                    <p style="color: var(--text-dark); margin-bottom: 1rem;">Already have an account?</p>
+                    <a href="login.html" class="btn btn-secondary" style="width: 100%;">Sign In</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Password strength checker
+        const passwordInput = document.getElementById('regPassword');
+        const strengthBar = document.getElementById('passwordStrengthBar');
+        const strengthText = document.getElementById('passwordStrengthText');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strength = checkPasswordStrength(password);
+            
+            strengthBar.className = 'password-strength-bar ' + strength.level;
+            strengthText.textContent = strength.text;
+            strengthText.style.color = strength.color;
+        });
+        
+        function checkPasswordStrength(password) {
+            if (password.length === 0) {
+                return { level: '', text: '', color: '' };
+            }
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            if (strength <= 2) {
+                return { level: 'weak', text: 'Weak password', color: 'var(--accent-red)' };
+            } else if (strength <= 4) {
+                return { level: 'medium', text: 'Medium strength', color: 'var(--secondary-color)' };
+            } else {
+                return { level: 'strong', text: 'Strong password', color: '#00ff00' };
+            }
+        }
+        
+        // Registration form handling
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const characterName = document.getElementById('characterName').value.trim();
+            const steamId = document.getElementById('steamId').value.trim() || null;
+            const displayName = document.getElementById('displayName').value.trim() || null;
+            const termsAccepted = document.getElementById('termsAccepted').checked;
+            
+            const submitBtn = document.querySelector('.auth-submit-btn');
+            const alertDiv = document.getElementById('authAlert');
+            
+            // Clear previous errors
+            document.querySelectorAll('.form-group').forEach(g => {
+                g.classList.remove('error', 'success');
+            });
+            document.getElementById('termsError').style.display = 'none';
+            alertDiv.classList.remove('show', 'error', 'success');
+            
+            // Validation
+            let hasErrors = false;
+            
+            if (!email) {
+                showFieldError('regEmail', 'Email is required');
+                hasErrors = true;
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showFieldError('regEmail', 'Invalid email format');
+                hasErrors = true;
+            }
+            
+            if (!password) {
+                showFieldError('regPassword', 'Password is required');
+                hasErrors = true;
+            } else if (password.length < 8) {
+                showFieldError('regPassword', 'Password must be at least 8 characters');
+                hasErrors = true;
+            }
+            
+            if (password !== confirmPassword) {
+                showFieldError('confirmPassword', 'Passwords do not match');
+                hasErrors = true;
+            }
+            
+            if (!characterName) {
+                showFieldError('characterName', 'Character name is required');
+                hasErrors = true;
+            } else if (!/^[a-zA-Z0-9\s\-_]{1,32}$/.test(characterName)) {
+                showFieldError('characterName', 'Invalid character name format');
+                hasErrors = true;
+            }
+            
+            if (steamId && !/^[0-9]{17}$/.test(steamId)) {
+                showFieldError('steamId', 'Steam ID must be 17 digits');
+                hasErrors = true;
+            }
+            
+            if (!termsAccepted) {
+                document.getElementById('termsError').textContent = 'You must accept the Terms of Service';
+                document.getElementById('termsError').style.display = 'block';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) {
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        characterName,
+                        steamId,
+                        displayName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+                
+                showAlert('Account created successfully! Redirecting to login...', 'success');
+                
+                // Redirect to login page
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                
+            } catch (error) {
+                showAlert(error.message || 'Registration failed. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        });
+        
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorSpan = document.getElementById(fieldId + 'Error');
+            const formGroup = field.closest('.form-group');
+            
+            formGroup.classList.add('error');
+            errorSpan.textContent = message;
+        }
+        
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('authAlert');
+            alertDiv.textContent = message;
+            alertDiv.className = `auth-alert ${type} show`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                }, 5000);
+            }
+        }
+        
+        // Check if already logged in
+        if (window.checkAuthState) {
+            window.checkAuthState().then(isLoggedIn => {
+                if (isLoggedIn) {
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

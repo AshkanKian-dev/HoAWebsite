@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your order status - Heart of Acheron">
+    <title>Order Tracking - Heart of Acheron</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Set API base URL (update this to match your backend URL)
+        window.API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+    </script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="server-info.html" class="nav-link">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="#" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Order Tracking</h2>
+                
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div class="server-info-card" style="margin-bottom: 2rem;">
+                        <h3>Lookup Your Order</h3>
+                        <p style="margin-bottom: 1.5rem; opacity: 0.9;">Enter your order ID or email address to track your purchase status.</p>
+                        
+                        <form id="trackingForm" class="customer-info-form">
+                            <div class="form-group">
+                                <label for="orderId">Order ID</label>
+                                <input type="text" id="orderId" name="orderId" placeholder="pi_1234567890abcdef">
+                            </div>
+                            <div style="text-align: center; margin: 1.5rem 0; opacity: 0.7;">OR</div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" placeholder="your.email@example.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Track Order</button>
+                        </form>
+                    </div>
+
+                    <div id="orderResults" style="display: none;">
+                        <!-- Order results will be displayed here -->
+                    </div>
+
+                    <div id="errorMessage" class="payment-error" style="display: none; margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000';
+
+        document.getElementById('trackingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const orderId = document.getElementById('orderId').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+            const resultsDiv = document.getElementById('orderResults');
+            
+            // Hide previous results
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            if (!orderId && !email) {
+                errorDiv.textContent = 'Please enter either an Order ID or Email address';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                let order;
+                
+                if (orderId) {
+                    // Fetch by order ID
+                    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('Order not found. Please check your Order ID and try again.');
+                        }
+                        throw new Error('Failed to fetch order');
+                    }
+                    order = await response.json();
+                } else {
+                    // Fetch by email
+                    const response = await fetch(`${API_BASE_URL}/api/orders/email/${encodeURIComponent(email)}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch orders');
+                    }
+                    const data = await response.json();
+                    if (!data.orders || data.orders.length === 0) {
+                        throw new Error('No orders found for this email address');
+                    }
+                    // Show most recent order, or all orders if multiple
+                    if (data.orders.length === 1) {
+                        order = data.orders[0];
+                    } else {
+                        displayMultipleOrders(data.orders);
+                        return;
+                    }
+                }
+
+                displayOrder(order);
+                
+            } catch (error) {
+                errorDiv.textContent = error.message || 'An error occurred while fetching your order';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        function displayOrder(order) {
+            const resultsDiv = document.getElementById('orderResults');
+            const statusColors = {
+                'pending': '#D4AF37',
+                'processing': '#6B2C91',
+                'delivered': '#00ff00',
+                'failed': '#C41E3A',
+                'refunded': '#888888'
+            };
+
+            const statusColor = statusColors[order.status] || '#888888';
+            const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+            
+            const deliveredDate = order.delivered_at 
+                ? new Date(order.delivered_at).toLocaleString() 
+                : 'Not yet delivered';
+            
+            const createdDate = order.created_at 
+                ? new Date(order.created_at).toLocaleString() 
+                : 'Unknown';
+
+            resultsDiv.innerHTML = `
+                <div class="server-info-card">
+                    <h3>Order Details</h3>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(212, 175, 55, 0.3);">
+                            <strong>Order ID:</strong>
+                            <span style="font-family: monospace; color: var(--secondary-color);">${order.order_id}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Status:</strong>
+                            <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Product:</strong>
+                            <span>${order.product_name}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Amount:</strong>
+                            <span style="color: var(--secondary-color); font-weight: bold;">$${parseFloat(order.price).toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Character:</strong>
+                            <span>${order.character_name}</span>
+                        </div>
+                        ${order.steam_id ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Steam ID:</strong>
+                            <span style="font-family: monospace; font-size: 0.9rem;">${order.steam_id}</span>
+                        </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Order Date:</strong>
+                            <span>${createdDate}</span>
+                        </div>
+                        ${order.delivered_at ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Delivered:</strong>
+                            <span style="color: #00ff00;">${deliveredDate}</span>
+                        </div>
+                        ` : ''}
+                        ${order.status === 'delivered' ? `
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0, 255, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 255, 0, 0.3);">
+                            <p style="margin: 0; color: #00ff00;">✓ Your items have been delivered! Please check your in-game inventory.</p>
+                        </div>
+                        ` : order.status === 'processing' ? `
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(107, 44, 145, 0.1); border-radius: 5px; border: 1px solid rgba(107, 44, 145, 0.3);">
+                            <p style="margin: 0;">⏳ Your order is being processed. Items will be delivered shortly.</p>
+                        </div>
+                        ` : order.status === 'failed' ? `
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(196, 30, 58, 0.1); border-radius: 5px; border: 1px solid rgba(196, 30, 58, 0.3);">
+                            <p style="margin: 0; color: #C41E3A;">✗ Delivery failed. Please contact support with your Order ID.</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        function displayMultipleOrders(orders) {
+            const resultsDiv = document.getElementById('orderResults');
+            
+            resultsDiv.innerHTML = `
+                <div class="server-info-card">
+                    <h3>Your Orders (${orders.length})</h3>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Found ${orders.length} orders. Showing most recent first.</p>
+                    ${orders.map(order => {
+                        const statusColors = {
+                            'pending': '#D4AF37',
+                            'processing': '#6B2C91',
+                            'delivered': '#00ff00',
+                            'failed': '#C41E3A',
+                            'refunded': '#888888'
+                        };
+                        const statusColor = statusColors[order.status] || '#888888';
+                        const statusText = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+                        const createdDate = order.created_at ? new Date(order.created_at).toLocaleString() : 'Unknown';
+                        
+                        return `
+                            <div style="padding: 1rem; margin-bottom: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 5px; border-left: 3px solid ${statusColor};">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                    <strong>${order.product_name}</strong>
+                                    <span style="color: ${statusColor}; font-size: 0.9rem;">${statusText}</span>
+                                </div>
+                                <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem;">
+                                    Order ID: <span style="font-family: monospace;">${order.order_id.substring(0, 20)}...</span>
+                                </div>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">
+                                    ${order.character_name} • $${parseFloat(order.price).toFixed(2)} • ${createdDate}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
