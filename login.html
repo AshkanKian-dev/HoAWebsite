@@ -88,6 +88,39 @@
                         <a href="#" id="forgotPasswordLink">Forgot Password?</a>
                     </div>
 
+                    <!-- Forgot Password Modal -->
+                    <div id="forgotPasswordModal" class="product-modal">
+                        <div class="modal-overlay"></div>
+                        <div class="modal-content forgot-password-modal-content">
+                            <div class="modal-header">
+                                <h2>Reset Password</h2>
+                                <button class="modal-close" id="forgotPasswordModalClose" aria-label="Close modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="subtitle">Enter your email address and we'll send you a password reset key.</p>
+                                
+                                <div id="forgotPasswordAlert" class="auth-alert"></div>
+                                
+                                <form id="forgotPasswordForm" class="auth-form">
+                                    <div class="form-group">
+                                        <label for="forgotPasswordEmail">Email Address</label>
+                                        <input type="email" id="forgotPasswordEmail" name="email" required placeholder="your.email@example.com" autocomplete="email">
+                                        <span class="error-message" id="forgotPasswordEmailError"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary auth-submit-btn" id="forgotPasswordSubmitBtn" style="width: 100%;">
+                                        <span class="btn-text">Send Reset Key</span>
+                                        <span class="btn-loader">Sending...</span>
+                                    </button>
+                                </form>
+
+                                <div style="text-align: center; margin-top: 1.5rem;">
+                                    <a href="#" id="backToLoginLink" style="color: var(--secondary-color); text-decoration: none; font-size: 0.9rem;">Back to Login</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary auth-submit-btn">
                         <span class="btn-text">Sign In</span>
                         <span class="btn-loader">Signing in...</span>
@@ -334,6 +367,110 @@
             }
         });
         
+        // Forgot Password Modal Handling
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const forgotPasswordModalClose = document.getElementById('forgotPasswordModalClose');
+        const backToLoginLink = document.getElementById('backToLoginLink');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const forgotPasswordAlert = document.getElementById('forgotPasswordAlert');
+
+        function openForgotPasswordModal() {
+            forgotPasswordModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                document.getElementById('forgotPasswordEmail').focus();
+            }, 100);
+        }
+
+        function closeForgotPasswordModal() {
+            forgotPasswordModal.classList.remove('active');
+            document.body.style.overflow = '';
+            forgotPasswordForm.reset();
+            forgotPasswordAlert.classList.remove('show', 'error', 'success');
+            forgotPasswordAlert.textContent = '';
+        }
+
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            openForgotPasswordModal();
+        });
+
+        forgotPasswordModalClose.addEventListener('click', closeForgotPasswordModal);
+        backToLoginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeForgotPasswordModal();
+        });
+
+        // Close modal when clicking overlay
+        forgotPasswordModal.querySelector('.modal-overlay').addEventListener('click', closeForgotPasswordModal);
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && forgotPasswordModal.classList.contains('active')) {
+                closeForgotPasswordModal();
+            }
+        });
+
+        // Forgot Password Form Submission
+        forgotPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgotPasswordEmail').value.trim();
+            const submitBtn = document.getElementById('forgotPasswordSubmitBtn');
+            
+            // Clear previous errors
+            forgotPasswordAlert.classList.remove('show', 'error', 'success');
+            forgotPasswordAlert.textContent = '';
+            document.getElementById('forgotPasswordEmailError').textContent = '';
+            
+            // Validate
+            if (!email) {
+                showForgotPasswordAlert('Please enter your email address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            
+            try {
+                const response = await fetch(`${window.API_BASE_URL}/api/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to send reset email');
+                }
+                
+                showForgotPasswordAlert('If an account with that email exists, a password reset key has been sent to your email address. Please check your inbox.', 'success');
+                
+                // Clear form
+                forgotPasswordForm.reset();
+                
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    closeForgotPasswordModal();
+                }, 3000);
+                
+            } catch (error) {
+                showForgotPasswordAlert(error.message || 'Failed to send reset email. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        });
+        
+        function showForgotPasswordAlert(message, type) {
+            forgotPasswordAlert.textContent = message;
+            forgotPasswordAlert.className = `auth-alert ${type} show`;
+        }
+
         // Check if already logged in
         if (window.checkAuthState) {
             window.checkAuthState().then(isLoggedIn => {

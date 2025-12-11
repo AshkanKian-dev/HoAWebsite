@@ -799,6 +799,96 @@ body::before {
     z-index: 10002;
     padding: 0;
     margin: 0;
+    flex-shrink: 0;
+}
+
+/* Forgot Password Modal Specific Styles */
+.forgot-password-modal-content {
+    max-width: 500px !important;
+    width: 90% !important;
+}
+
+.forgot-password-modal-content .modal-header {
+    position: relative;
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    margin-bottom: 1.5rem;
+}
+
+.forgot-password-modal-content .modal-header h2 {
+    margin: 0;
+    padding: 0;
+    padding-right: 50px; /* Space for close button */
+    color: var(--secondary-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.forgot-password-modal-content .modal-header .modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    margin: 0;
+}
+
+.forgot-password-modal-content .modal-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.forgot-password-modal-content .subtitle {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.forgot-password-modal-content .auth-form {
+    margin-top: 0;
+}
+
+.forgot-password-modal-content .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.forgot-password-modal-content .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.forgot-password-modal-content .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 5px;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.forgot-password-modal-content .form-group input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+}
+
+.forgot-password-modal-content .auth-submit-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
+.forgot-password-modal-content .auth-submit-btn .btn-text {
+    white-space: nowrap;
 }
 
 .modal-close::before,

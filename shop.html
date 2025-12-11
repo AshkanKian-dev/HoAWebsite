@@ -8,8 +8,13 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Payment Provider SDKs -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD" data-sdk-integration-source="button-factory"></script>
+    <!-- PayPal SDK will be loaded dynamically by payment.js -->
     <script src="https://pay.google.com/gp/p/js/pay.js"></script>
+    <!-- Payment configuration meta tags (set these in your server-side template or via config) -->
+    <meta name="stripe-publishable-key" content="">
+    <meta name="paypal-client-id" content="">
+    <meta name="apple-pay-merchant-id" content="">
+    <meta name="google-pay-merchant-id" content="">
 </head>
 <body>
     <header class="header">
