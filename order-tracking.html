@@ -88,8 +88,6 @@
     </footer>
 
     <script src="script.js"></script>
-    <script src="mock-data.js"></script>
-    <script src="dev-mode.js"></script>
     <script src="auth.js"></script>
     <script>
         // Use API_BASE_URL from auth.js
@@ -113,21 +111,6 @@
             noTransactionsDiv.style.display = 'none';
 
             try {
-                // Check for developer mode first
-                if (window.devMode && window.devMode.isEnabled()) {
-                    console.log('Developer mode: Loading mock transaction history');
-                    const mockOrders = window.mockData.getOrders();
-                    
-                    loadingDiv.style.display = 'none';
-                    
-                    if (mockOrders.length === 0) {
-                        noTransactionsDiv.style.display = 'block';
-                    } else {
-                        displayTransactionHistory(mockOrders);
-                        historyDiv.style.display = 'block';
-                    }
-                    return;
-                }
 
                 // Check if user is logged in
                 const authToken = localStorage.getItem('authToken');

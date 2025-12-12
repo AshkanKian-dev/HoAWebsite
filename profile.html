@@ -116,21 +116,12 @@
     </footer>
 
     <script src="script.js"></script>
-    <script src="mock-data.js"></script>
-    <script src="dev-mode.js"></script>
     <script src="auth.js"></script>
     <script>
         // API_BASE_URL is already set in auth.js, just use window.API_BASE_URL
         const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
 
         // Check for dev mode immediately and load if needed
-        (function checkDevModeImmediate() {
-            const isDevMode = localStorage.getItem('hoa_dev_mode_enabled') === 'true';
-            if (isDevMode && window.mockData && document.readyState !== 'loading') {
-                // DOM is ready, load immediately
-                setTimeout(() => loadProfile(), 50);
-            }
-        })();
 
         // Load profile data when page loads
         window.addEventListener('load', async function() {
@@ -155,24 +146,9 @@
             errorDiv.style.display = 'none';
 
             try {
-                // Check for developer mode first (check localStorage directly for immediate check)
-                const isDevMode = localStorage.getItem('hoa_dev_mode_enabled') === 'true';
-                
-                if (isDevMode && window.mockData) {
-                    console.log('Developer mode: Loading mock profile data');
-                    const mockUser = window.mockData.getUserProfile();
-                    
-                    // Display mock profile data
-                    displayProfileData(mockUser);
-                    
-                    loadingDiv.style.display = 'none';
-                    profileDiv.style.display = 'block';
-                    return;
-                }
-
-                // Check if user is logged in (skip in dev mode)
+                // Check if user is logged in
                 const authToken = localStorage.getItem('authToken');
-                if (!authToken && !isDevMode) {
+                if (!authToken) {
                     // Redirect to login if not authenticated
                     window.location.href = 'login.html?return=profile.html';
                     return;

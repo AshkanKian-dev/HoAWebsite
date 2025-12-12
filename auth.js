@@ -448,6 +448,7 @@ window.setAuthToken = setAuthToken;
 window.isAuthenticated = isAuthenticated;
 window.mockLogin = mockLogin;
 window.USE_MOCK_AUTH = () => USE_MOCK_AUTH;
+window.mockAuth = mockAuth;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

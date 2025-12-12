@@ -374,11 +374,13 @@ body::before {
     color: var(--dark-bg);
     border-color: var(--secondary-color);
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1);
+    cursor: pointer;
 }
 
 .btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 25px rgba(212, 175, 55, 0.6), 0 0 30px rgba(212, 175, 55, 0.4);
+    cursor: pointer;
 }
 
 .btn-secondary {
@@ -1838,6 +1840,27 @@ body::before {
     letter-spacing: 1px;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    display: block;
+    min-height: 48px;
+    box-sizing: border-box;
+    /* Default state - matches create account button (inherits from .btn-primary) */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Yellow glow state when credentials are valid - enhanced glow */
+.auth-submit-btn.ready {
+    box-shadow: 0 5px 25px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.2);
+    animation: buttonPulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes buttonPulseGlow {
+    0%, 100% {
+        box-shadow: 0 5px 25px rgba(212, 175, 55, 0.8), 0 0 40px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 5px 30px rgba(212, 175, 55, 1), 0 0 50px rgba(212, 175, 55, 0.8), inset 0 0 25px rgba(255, 255, 255, 0.3);
+    }
 }
 
 .auth-submit-btn:disabled {
@@ -2233,50 +2256,6 @@ body::before {
     }
 }
 
-/* Developer Mode Styles */
-.dev-mode-toggle {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.9), rgba(107, 44, 145, 0.9));
-    color: white;
-    border: 2px solid var(--border-glow);
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-    z-index: 9999;
-}
-
-.dev-mode-toggle:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-    background: linear-gradient(135deg, rgba(212, 175, 55, 1), rgba(107, 44, 145, 1));
-}
-
-.dev-mode-toggle.active {
-    background: linear-gradient(135deg, rgba(107, 44, 145, 0.9), rgba(212, 175, 55, 0.9));
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
-}
-
-.dev-mode-indicator {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(90deg, rgba(212, 175, 55, 0.9), rgba(107, 44, 145, 0.9));
-    color: white;
-    text-align: center;
-    padding: 8px;
-    font-weight: bold;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    z-index: 10001;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    animation: pulseGlow 2s ease-in-out infinite;
-}
 
 @keyframes pulseGlow {
     0%, 100% {

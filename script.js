@@ -36,22 +36,56 @@ setActiveNavLink();
 const contactForm = document.querySelector('.contact-form');
 
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    contactForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // Get form values
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const subject = document.getElementById('subject')?.value || 'No subject';
-        const message = document.getElementById('message').value;
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject')?.value.trim() || 'No subject';
+        const message = document.getElementById('message').value.trim();
         
         // Simple validation
-        if (name && email && message) {
-            // Here you would typically send the data to a server
+        if (!name || !email || !message) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Disable submit button
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        try {
+            const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+            const response = await fetch(`${API_BASE}/api/contact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    subject,
+                    message
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to send message');
+            }
+            
             alert('Thank you for your message, ' + name + '! We will get back to you soon at ' + email + '.');
             contactForm.reset();
-        } else {
-            alert('Please fill in all required fields.');
+        } catch (error) {
+            console.error('Error submitting contact form:', error);
+            alert('Failed to send message. Please try again later.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         }
     });
 }

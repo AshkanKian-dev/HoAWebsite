@@ -10,9 +10,6 @@ function escapeHtml(text) {
 }
 
 // Production Mode Configuration
-// Test mode is determined by checking if credentials are configured
-// If credentials are missing or invalid, fall back to test mode
-const TEST_MODE_DELAY = 1500; // Simulated payment processing delay in milliseconds
 
 // Backend API Configuration
 // Use API_BASE_URL from auth.js if available, otherwise set it
@@ -38,27 +35,9 @@ const paymentConfig = {
         initialized: false
     },
     currentProduct: null,
-    currentPaymentMethod: 'stripe',
-    testMode: false // Will be determined dynamically
+    currentPaymentMethod: 'stripe'
 };
 
-// Determine if we're in test mode based on credentials
-function determineTestMode() {
-    // Check if we have valid credentials
-    const hasStripeKey = paymentConfig.stripe.publishableKey && 
-                         paymentConfig.stripe.publishableKey.startsWith('pk_');
-    const hasPayPalKey = paymentConfig.paypal.clientId && 
-                         paymentConfig.paypal.clientId !== 'YOUR_PAYPAL_CLIENT_ID';
-    
-    // If we're on localhost or missing credentials, use test mode
-    const isLocalhost = window.location.hostname === 'localhost' || 
-                       window.location.hostname === '127.0.0.1';
-    
-    // Check for dev mode override
-    const isDevMode = window.devMode && window.devMode.isEnabled();
-    
-    return isDevMode || isLocalhost || (!hasStripeKey && !hasPayPalKey);
-}
 
 // Load payment configuration from meta tags or window config
 function loadPaymentConfig() {
@@ -96,9 +75,6 @@ function loadPaymentConfig() {
     } else if (window.GOOGLE_PAY_MERCHANT_ID) {
         paymentConfig.googlePay.merchantId = window.GOOGLE_PAY_MERCHANT_ID;
     }
-    
-    // Determine test mode
-    paymentConfig.testMode = determineTestMode();
 }
 
 // Load PayPal SDK dynamically
@@ -156,93 +132,37 @@ function initializePaymentProviders() {
     // Load configuration first
     loadPaymentConfig();
     
-    if (paymentConfig.testMode) {
-        console.log('🧪 Running in TEST MODE - Payment providers will simulate behavior');
-        console.log('💡 Configure payment credentials for production mode');
-        
-        // Initialize test mode - allow UI to work without real credentials
-        paymentConfig.stripe.initialized = true;
-        paymentConfig.paypal.initialized = true;
-        
-        // Show test mode indicator after a short delay to ensure DOM is ready
-        setTimeout(() => {
-            showTestModeIndicator();
-        }, 100);
+    // Initialize Stripe (Production Mode)
+    if (typeof Stripe !== 'undefined' && paymentConfig.stripe.publishableKey && paymentConfig.stripe.publishableKey.startsWith('pk_')) {
+        try {
+            stripe = Stripe(paymentConfig.stripe.publishableKey);
+            stripeElements = stripe.elements();
+            paymentConfig.stripe.initialized = true;
+            console.log('✅ Stripe initialized');
+        } catch (e) {
+            console.warn('Stripe initialization failed:', e);
+        }
     } else {
-        // Initialize Stripe (Production Mode)
-        if (typeof Stripe !== 'undefined' && paymentConfig.stripe.publishableKey && paymentConfig.stripe.publishableKey.startsWith('pk_')) {
-            try {
-                stripe = Stripe(paymentConfig.stripe.publishableKey);
-                stripeElements = stripe.elements();
-                paymentConfig.stripe.initialized = true;
-                console.log('✅ Stripe initialized');
-            } catch (e) {
-                console.warn('Stripe initialization failed:', e);
-            }
-        } else {
-            console.warn('Stripe not initialized: Missing publishable key');
-        }
-
-        // Initialize PayPal (Production Mode)
-        if (typeof paypal !== 'undefined' && paymentConfig.paypal.clientId && paymentConfig.paypal.clientId !== 'YOUR_PAYPAL_CLIENT_ID') {
-            paymentConfig.paypal.initialized = true;
-            console.log('✅ PayPal initialized');
-        } else {
-            console.warn('PayPal not initialized: Missing client ID');
-        }
+        console.warn('Stripe not initialized: Missing publishable key');
     }
 
-    // Check for Apple Pay availability (only works on HTTPS or in test mode)
-    if (window.location.protocol === 'https:' || paymentConfig.testMode) {
-        if (paymentConfig.testMode) {
-            // In test mode, show Apple Pay button for UI testing
-            const applePayBtn = document.getElementById('applePayBtn');
-            if (applePayBtn) applePayBtn.style.display = 'block';
-        } else {
-            checkApplePayAvailability();
-        }
+    // Initialize PayPal (Production Mode)
+    if (typeof paypal !== 'undefined' && paymentConfig.paypal.clientId && paymentConfig.paypal.clientId !== 'YOUR_PAYPAL_CLIENT_ID') {
+        paymentConfig.paypal.initialized = true;
+        console.log('✅ PayPal initialized');
+    } else {
+        console.warn('PayPal not initialized: Missing client ID');
+    }
+
+    // Check for Apple Pay availability (only works on HTTPS)
+    if (window.location.protocol === 'https:') {
+        checkApplePayAvailability();
     }
     
-    // Check for Google Pay availability (only works on HTTPS or in test mode)
-    if (window.location.protocol === 'https:' || paymentConfig.testMode) {
-        if (paymentConfig.testMode) {
-            // In test mode, show Google Pay button for UI testing
-            const googlePayBtn = document.getElementById('googlePayBtn');
-            if (googlePayBtn) googlePayBtn.style.display = 'block';
-        } else {
-            checkGooglePayAvailability();
-        }
+    // Check for Google Pay availability (only works on HTTPS)
+    if (window.location.protocol === 'https:') {
+        checkGooglePayAvailability();
     }
-}
-
-// Show test mode indicator
-function showTestModeIndicator() {
-    // Remove existing indicator if any
-    const existing = document.getElementById('testModeIndicator');
-    if (existing) {
-        existing.remove();
-    }
-    
-    const indicator = document.createElement('div');
-    indicator.id = 'testModeIndicator';
-    indicator.innerHTML = '🧪 TEST MODE - Payments are simulated';
-    indicator.style.cssText = `
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: rgba(212, 175, 55, 0.95);
-        color: #000;
-        padding: 0.75rem 1.25rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: bold;
-        z-index: 99999;
-        box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
-        border: 2px solid var(--secondary-color);
-        pointer-events: none;
-    `;
-    document.body.appendChild(indicator);
-    console.log('✅ Test mode indicator displayed');
 }
 
 // Check Apple Pay availability
@@ -257,9 +177,8 @@ function checkApplePayAvailability() {
 // Check Google Pay availability
 function checkGooglePayAvailability() {
     if (window.google && google.payments) {
-        const environment = paymentConfig.testMode ? 'TEST' : 'PRODUCTION';
         const paymentsClient = new google.payments.api.PaymentsClient({
-            environment: environment
+            environment: 'PRODUCTION'
         });
         
         paymentsClient.isReadyToPay({
@@ -302,22 +221,6 @@ function initializeGooglePay() {
     
     // Clear any existing buttons
     container.innerHTML = '';
-    
-    if (paymentConfig.testMode) {
-        // Test mode - show mock Google Pay button
-        console.log('🧪 TEST MODE: Showing mock Google Pay button');
-        const mockButton = document.createElement('button');
-        mockButton.className = 'btn btn-primary payment-submit-btn';
-        mockButton.style.width = '100%';
-        mockButton.style.marginTop = '1rem';
-        mockButton.style.background = '#4285f4';
-        mockButton.innerHTML = `
-            <span class="btn-text">Pay with Google Pay (Test Mode)</span>
-        `;
-        mockButton.onclick = onGooglePayButtonClicked;
-        container.appendChild(mockButton);
-        return;
-    }
 
     // Production mode - use real Google Pay
     if (typeof google === 'undefined' || !google.payments) {
@@ -334,9 +237,8 @@ function initializeGooglePay() {
         return;
     }
 
-    const environment = paymentConfig.testMode ? 'TEST' : 'PRODUCTION';
     const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: environment
+        environment: 'PRODUCTION'
     });
 
     const button = paymentsClient.createButton({
@@ -525,38 +427,7 @@ function initializeStripe() {
     const stripeForm = document.getElementById('stripePaymentForm');
     stripeForm.classList.add('active');
 
-    if (paymentConfig.testMode) {
-        // In test mode, show a mock card input form
-        const stripeElement = document.getElementById('stripeCardElement');
-        if (stripeElement) {
-            stripeElement.innerHTML = `
-                <div class="test-card-form">
-                    <div class="form-group">
-                        <label>Card Number (Test Mode)</label>
-                        <input type="text" placeholder="4242 4242 4242 4242" class="test-card-input" maxlength="19">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label>Expiry</label>
-                            <input type="text" placeholder="12/25" class="test-card-input" maxlength="5">
-                        </div>
-                        <div class="form-group">
-                            <label>CVC</label>
-                            <input type="text" placeholder="123" class="test-card-input" maxlength="3">
-                        </div>
-                    </div>
-                    <p style="color: var(--secondary-color); font-size: 0.85rem; margin-top: 0.5rem;">
-                        💡 Test Mode: Any card details will work
-                    </p>
-                </div>
-            `;
-        }
-        
-        // Handle form submission
-        const submitBtn = document.getElementById('stripeSubmitBtn');
-        if (submitBtn) submitBtn.onclick = handleStripePayment;
-    } else {
-        // Production mode - use real Stripe Elements
+    // Production mode - use real Stripe Elements
         // Create card element if not exists
         if (!stripeCardElement) {
             const style = {
@@ -631,40 +502,6 @@ async function handleStripePayment() {
         return;
     }
 
-    // Check for developer mode
-    const isDevMode = window.devMode && window.devMode.isEnabled();
-    
-    if (paymentConfig.testMode || isDevMode) {
-        // Test/Dev mode - simulate payment processing
-        console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Stripe payment...');
-        console.log('Customer Data:', customerData);
-        console.log('Product:', paymentConfig.currentProduct);
-        
-        setTimeout(() => {
-            // In dev mode, add mock order
-            if (isDevMode && window.mockData) {
-                const mockOrder = window.mockData.addOrder({
-                    customer_email: customerData.email,
-                    steam_id: customerData.steamId,
-                    character_name: customerData.characterName,
-                    product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
-                    product_name: paymentConfig.currentProduct.title,
-                    price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
-                    payment_provider: 'stripe',
-                    payment_intent_id: 'dev_mode_' + Date.now(),
-                    status: 'delivered'
-                });
-                console.log('Mock order created:', mockOrder);
-            }
-            
-            showPaymentSuccess(customerData);
-            btnText.style.display = 'inline';
-            btnLoader.style.display = 'none';
-            submitBtn.disabled = false;
-        }, TEST_MODE_DELAY);
-        return;
-    }
-
     // Production mode - actual Stripe payment processing
     try {
         // Get product ID from current product
@@ -733,68 +570,6 @@ function initializePayPal() {
 
     const container = document.getElementById('paypalButtonContainer');
     container.innerHTML = ''; // Clear previous button
-
-    if (paymentConfig.testMode) {
-        // Test mode - show mock PayPal button
-        console.log('🧪 TEST MODE: Showing mock PayPal button');
-        const mockButton = document.createElement('button');
-        mockButton.className = 'btn btn-primary payment-submit-btn';
-        mockButton.style.width = '100%';
-        mockButton.style.marginTop = '1rem';
-        mockButton.innerHTML = `
-            <span class="btn-text">Pay with PayPal (Test Mode)</span>
-        `;
-        mockButton.onclick = async function() {
-            // Validate customer info form
-            const customerForm = document.getElementById('customerInfoForm');
-            if (!customerForm.checkValidity()) {
-                customerForm.reportValidity();
-                return;
-            }
-            
-            const customerData = {
-                name: document.getElementById('customerName').value,
-                email: document.getElementById('customerEmail').value,
-                characterName: document.getElementById('characterName').value.trim(),
-                steamId: document.getElementById('steamId').value.trim() || null
-            };
-
-            if (!customerData.characterName) {
-                showPaymentError('Character name is required for delivery');
-                return;
-            }
-            
-            mockButton.disabled = true;
-            mockButton.innerHTML = '<span class="btn-loader">Processing...</span>';
-            
-            const isDevMode = window.devMode && window.devMode.isEnabled();
-            console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating PayPal payment...');
-            
-            setTimeout(() => {
-                // In dev mode, add mock order
-                if (isDevMode && window.mockData) {
-                    const mockOrder = window.mockData.addOrder({
-                        customer_email: customerData.email,
-                        steam_id: customerData.steamId,
-                        character_name: customerData.characterName,
-                        product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
-                        product_name: paymentConfig.currentProduct.title,
-                        price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
-                        payment_provider: 'paypal',
-                        payment_intent_id: 'dev_mode_paypal_' + Date.now(),
-                        status: 'delivered'
-                    });
-                    console.log('Mock order created:', mockOrder);
-                }
-                
-                showPaymentSuccess(customerData);
-                mockButton.disabled = false;
-                mockButton.innerHTML = '<span class="btn-text">Pay with PayPal (Test Mode)</span>';
-            }, TEST_MODE_DELAY);
-        };
-        container.appendChild(mockButton);
-        return;
-    }
 
     // Production mode - use real PayPal SDK with backend order creation
     if (typeof paypal === 'undefined') {
@@ -914,49 +689,6 @@ function initializeApplePay() {
         const customerForm = document.getElementById('customerInfoForm');
         if (!customerForm.checkValidity()) {
             customerForm.reportValidity();
-            return;
-        }
-
-        const isDevMode = window.devMode && window.devMode.isEnabled();
-        
-        if (paymentConfig.testMode || isDevMode) {
-            // Test/Dev mode - simulate Apple Pay
-            console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Apple Pay payment...');
-            button.disabled = true;
-            button.innerHTML = '<span class="btn-loader">Processing...</span>';
-            
-            setTimeout(() => {
-                // In dev mode, add mock order
-                if (isDevMode && window.mockData) {
-                    const customerData = {
-                        name: document.getElementById('customerName').value,
-                        email: document.getElementById('customerEmail').value,
-                        characterName: document.getElementById('characterName').value.trim(),
-                        steamId: document.getElementById('steamId').value.trim() || null
-                    };
-                    const mockOrder = window.mockData.addOrder({
-                        customer_email: customerData.email,
-                        steam_id: customerData.steamId,
-                        character_name: customerData.characterName,
-                        product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
-                        product_name: paymentConfig.currentProduct.title,
-                        price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
-                        payment_provider: 'apple_pay',
-                        payment_intent_id: 'dev_mode_apple_' + Date.now(),
-                        status: 'delivered'
-                    });
-                    console.log('Mock order created:', mockOrder);
-                }
-                
-                const customerData = {
-                    name: document.getElementById('customerName').value,
-                    email: document.getElementById('customerEmail').value,
-                    characterName: document.getElementById('characterName').value.trim()
-                };
-                showPaymentSuccess(customerData);
-                button.disabled = false;
-                button.innerHTML = '<span class="btn-text">Pay with Apple Pay</span>';
-            }, TEST_MODE_DELAY);
             return;
         }
 
@@ -1097,65 +829,14 @@ function onGooglePayButtonClicked() {
         return;
     }
 
-    const isDevMode = window.devMode && window.devMode.isEnabled();
-    
-    if (paymentConfig.testMode || isDevMode) {
-        // Test/Dev mode - simulate Google Pay
-        console.log(isDevMode ? '🔧 DEV MODE' : '🧪 TEST MODE', ': Simulating Google Pay payment...');
-        
-        // Show loading state
-        const button = document.querySelector('#googlePayButtonContainer button');
-        if (button) {
-            button.disabled = true;
-            button.style.opacity = '0.6';
-        }
-        
-        setTimeout(() => {
-            // In dev mode, add mock order
-            if (isDevMode && window.mockData) {
-                const customerData = {
-                    name: document.getElementById('customerName').value,
-                    email: document.getElementById('customerEmail').value,
-                    characterName: document.getElementById('characterName').value.trim(),
-                    steamId: document.getElementById('steamId').value.trim() || null
-                };
-                const mockOrder = window.mockData.addOrder({
-                    customer_email: customerData.email,
-                    steam_id: customerData.steamId,
-                    character_name: customerData.characterName,
-                    product_id: paymentConfig.currentProduct.productId || paymentConfig.currentProduct.id || 'mock_product',
-                    product_name: paymentConfig.currentProduct.title,
-                    price: parseFloat(getAmountFromPrice(paymentConfig.currentProduct.price)),
-                    payment_provider: 'google_pay',
-                    payment_intent_id: 'dev_mode_google_' + Date.now(),
-                    status: 'delivered'
-                });
-                console.log('Mock order created:', mockOrder);
-            }
-            
-            const customerData = {
-                name: document.getElementById('customerName').value,
-                email: document.getElementById('customerEmail').value,
-                characterName: document.getElementById('characterName').value.trim()
-            };
-            showPaymentSuccess(customerData);
-            if (button) {
-                button.disabled = false;
-                button.style.opacity = '1';
-            }
-        }, TEST_MODE_DELAY);
-        return;
-    }
-
     // Production mode - use real Google Pay
     if (!window.google || !google.payments) {
         showPaymentError('Google Pay SDK not loaded');
         return;
     }
 
-    const environment = paymentConfig.testMode ? 'TEST' : 'PRODUCTION';
     const paymentsClient = new google.payments.api.PaymentsClient({
-        environment: environment
+        environment: 'PRODUCTION'
     });
 
     const productId = paymentConfig.currentProduct.productId || 
