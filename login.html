@@ -78,42 +78,9 @@
                     <div class="auth-links">
                         <div class="checkbox-group">
                             <input type="checkbox" id="rememberMe" name="rememberMe">
-                            <label for="rememberMe" style="flex: 1;">Remember me</label>
+                            <label for="rememberMe">Remember me</label>
                         </div>
-                        <a href="#" id="forgotPasswordLink">Forgot Password?</a>
-                    </div>
-
-                    <!-- Forgot Password Modal -->
-                    <div id="forgotPasswordModal" class="product-modal">
-                        <div class="modal-overlay"></div>
-                        <div class="modal-content forgot-password-modal-content">
-                            <div class="modal-header">
-                                <h2>Reset Password</h2>
-                                <button class="modal-close" id="forgotPasswordModalClose" aria-label="Close modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p class="subtitle">Enter your email address and we'll send you a password reset key.</p>
-                                
-                                <div id="forgotPasswordAlert" class="auth-alert"></div>
-                                
-                                <form id="forgotPasswordForm" class="auth-form">
-                                    <div class="form-group">
-                                        <label for="forgotPasswordEmail">Email Address</label>
-                                        <input type="email" id="forgotPasswordEmail" name="email" required placeholder="your.email@example.com" autocomplete="email">
-                                        <span class="error-message" id="forgotPasswordEmailError"></span>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary auth-submit-btn" id="forgotPasswordSubmitBtn" style="width: 100%;">
-                                        <span class="btn-text">Send Reset Key</span>
-                                        <span class="btn-loader">Sending...</span>
-                                    </button>
-                                </form>
-
-                                <div style="text-align: center; margin-top: 1.5rem;">
-                                    <a href="#" id="backToLoginLink" style="color: var(--secondary-color); text-decoration: none; font-size: 0.9rem;">Back to Login</a>
-                                </div>
-                            </div>
-                        </div>
+                        <a href="forgot-password.html" id="forgotPasswordLink">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="btn btn-primary auth-submit-btn">
@@ -141,35 +108,6 @@
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script>
-        // Check if backend is available
-        async function checkBackendAvailable() {
-            try {
-                const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
-                const response = await fetch(`${API_BASE}/health`, {
-                    method: 'GET',
-                    signal: AbortSignal.timeout(1000)
-                });
-                return response.ok;
-            } catch (error) {
-                return false;
-            }
-        }
-
-        // Validate credentials in real-time
-        function validateCredentials(email, password) {
-            if (!email || !password) {
-                return false;
-            }
-            
-            // Check mock users first (for local testing)
-            try {
-                const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
-                const user = users.find(u => u.email === email.toLowerCase().trim() && u.password === password);
-                return !!user;
-            } catch (error) {
-                return false;
-            }
-        }
 
         // Wait for DOM to be ready
         function initLoginForm() {
@@ -181,33 +119,13 @@
 
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
+            const rememberMeCheckbox = document.getElementById('rememberMe');
             const submitBtn = loginForm.querySelector('.auth-submit-btn');
-
-            // Real-time credential validation for button glow
-            let validationTimeout;
-            function checkCredentials() {
-                clearTimeout(validationTimeout);
-                validationTimeout = setTimeout(() => {
-                    const email = emailInput.value.trim();
-                    const password = passwordInput.value;
-                    const isValid = validateCredentials(email, password);
-                    
-                    if (submitBtn) {
-                        if (isValid) {
-                            submitBtn.classList.add('ready');
-                        } else {
-                            submitBtn.classList.remove('ready');
-                        }
-                    }
-                }, 300); // Debounce for 300ms
-            }
-
-            // Add event listeners for real-time validation
-            if (emailInput) {
-                emailInput.addEventListener('input', checkCredentials);
-            }
-            if (passwordInput) {
-                passwordInput.addEventListener('input', checkCredentials);
+            
+            // Restore remember me checkbox state if previously checked
+            const remembered = localStorage.getItem('rememberMe') === 'true';
+            if (rememberMeCheckbox && remembered) {
+                rememberMeCheckbox.checked = true;
             }
 
             // Login form handling
@@ -239,12 +157,11 @@
                 
                 try {
                     // Check if backend is available
-                    const backendAvailable = await checkBackendAvailable();
+                    const backendAvailable = await window.checkBackendAvailable();
                     
                     if (backendAvailable) {
                         // Use backend API
-                        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
-                        const response = await fetch(`${API_BASE}/api/auth/login`, {
+                        const response = await fetch(`${window.API_BASE_URL}/api/auth/login`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -267,25 +184,47 @@
                             localStorage.setItem('authToken', data.token);
                             if (rememberMe) {
                                 localStorage.setItem('rememberMe', 'true');
+                            } else {
+                                localStorage.removeItem('rememberMe');
                             }
                         }
                     } else {
                         // Use mock authentication
-                        if (!window.mockAuth) {
-                            throw new Error('Mock authentication not available');
+                        // Wait a bit for auth.js to initialize if needed
+                        let mockAuth = window.mockAuth;
+                        if (!mockAuth) {
+                            // Try waiting a moment for auth.js to load
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            mockAuth = window.mockAuth;
                         }
                         
-                        const result = window.mockAuth.login(email, password);
+                        if (!mockAuth) {
+                            throw new Error('Mock authentication not available. Please refresh the page.');
+                        }
+                        
+                        const result = mockAuth.login(email, password);
                         
                         if (!result.success) {
                             throw new Error('Invalid email or password');
                         }
                         
-                        // Store mock token
+                        // Store mock token and user data
                         if (result.token) {
                             localStorage.setItem('authToken', result.token);
                             if (rememberMe) {
                                 localStorage.setItem('rememberMe', 'true');
+                            } else {
+                                localStorage.removeItem('rememberMe');
+                            }
+                            
+                            // Set auth token
+                            if (window.setAuthToken) {
+                                window.setAuthToken(result.token);
+                            }
+                            
+                            // Verify auth state was set correctly
+                            if (window.checkAuthState) {
+                                await window.checkAuthState();
                             }
                         }
                     }
@@ -331,153 +270,9 @@
             }
         }
         
-        // Initialize Forgot Password Modal
-        function initForgotPasswordModal() {
-            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
-            const forgotPasswordModalClose = document.getElementById('forgotPasswordModalClose');
-            const backToLoginLink = document.getElementById('backToLoginLink');
-            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-            const forgotPasswordAlert = document.getElementById('forgotPasswordAlert');
-
-            // Check if all required elements exist
-            if (!forgotPasswordLink || !forgotPasswordModal || !forgotPasswordModalClose || 
-                !backToLoginLink || !forgotPasswordForm || !forgotPasswordAlert) {
-                console.warn('Some forgot password modal elements not found, skipping initialization');
-                return;
-            }
-
-            function openForgotPasswordModal() {
-                forgotPasswordModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => {
-                    const emailInput = document.getElementById('forgotPasswordEmail');
-                    if (emailInput) emailInput.focus();
-                }, 100);
-            }
-
-            function closeForgotPasswordModal() {
-                forgotPasswordModal.classList.remove('active');
-                document.body.style.overflow = '';
-                if (forgotPasswordForm) forgotPasswordForm.reset();
-                if (forgotPasswordAlert) {
-                    forgotPasswordAlert.classList.remove('show', 'error', 'success');
-                    forgotPasswordAlert.textContent = '';
-                }
-            }
-
-            forgotPasswordLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                openForgotPasswordModal();
-            });
-
-            forgotPasswordModalClose.addEventListener('click', closeForgotPasswordModal);
-            backToLoginLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                closeForgotPasswordModal();
-            });
-
-            // Close modal when clicking overlay
-            const overlay = forgotPasswordModal.querySelector('.modal-overlay');
-            if (overlay) {
-                overlay.addEventListener('click', closeForgotPasswordModal);
-            }
-
-            // Close modal on Escape key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && forgotPasswordModal.classList.contains('active')) {
-                    closeForgotPasswordModal();
-                }
-            });
-
-            // Forgot Password Form Submission
-            forgotPasswordForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const email = document.getElementById('forgotPasswordEmail')?.value.trim();
-                const submitBtn = document.getElementById('forgotPasswordSubmitBtn');
-                
-                // Clear previous errors
-                if (forgotPasswordAlert) {
-                    forgotPasswordAlert.classList.remove('show', 'error', 'success');
-                    forgotPasswordAlert.textContent = '';
-                }
-                const emailError = document.getElementById('forgotPasswordEmailError');
-                if (emailError) emailError.textContent = '';
-                
-                // Validate
-                if (!email) {
-                    showForgotPasswordAlert('Please enter your email address', 'error');
-                    return;
-                }
-                
-                // Show loading state
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('loading');
-                }
-                
-                try {
-                    // Check if backend is available
-                    const backendAvailable = await checkBackendAvailable();
-                    
-                    if (backendAvailable) {
-                        // Use backend API
-                        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
-                        const response = await fetch(`${API_BASE}/api/auth/forgot-password`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ email })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (!response.ok) {
-                            throw new Error(data.error || 'Failed to send reset email');
-                        }
-                        
-                        showForgotPasswordAlert('If an account with that email exists, a password reset key has been sent to your email address. Please check your inbox.', 'success');
-                    } else {
-                        // Mock mode - check if email exists in mock users
-                        const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
-                        const userExists = users.some(u => u.email === email.toLowerCase().trim());
-                        
-                        // Always show success message (security best practice - don't reveal if email exists)
-                        showForgotPasswordAlert('If an account with that email exists, a password reset key has been sent to your email address. Please check your inbox.', 'success');
-                    }
-                    
-                    // Clear form
-                    if (forgotPasswordForm) forgotPasswordForm.reset();
-                    
-                    // Auto-close after 3 seconds
-                    setTimeout(() => {
-                        closeForgotPasswordModal();
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Forgot password error:', error);
-                    showForgotPasswordAlert(error.message || 'Failed to send reset email. Please try again.', 'error');
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('loading');
-                    }
-                }
-            });
-            
-            function showForgotPasswordAlert(message, type) {
-                if (forgotPasswordAlert) {
-                    forgotPasswordAlert.textContent = message;
-                    forgotPasswordAlert.className = `auth-alert ${type} show`;
-                }
-            }
-        }
-        
         // Initialize everything when DOM is ready
         function initAll() {
             initLoginForm();
-            initForgotPasswordModal();
         }
         
         if (document.readyState === 'loading') {

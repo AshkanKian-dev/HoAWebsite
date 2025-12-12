@@ -87,11 +87,7 @@
                             </li>
                             <li>
                                 <strong>Game Port:</strong>
-                                <span><code>7775</code></span>
-                            </li>
-                            <li>
-                                <strong>Query Port:</strong>
-                                <span><code>27012</code></span>
+                                <span><code id="gamePort">7775</code></span>
                             </li>
                         </ul>
                         <p style="margin-top: 1rem; opacity: 0.9; font-size: 0.9rem;">
@@ -125,7 +121,7 @@
                     <h3 style="color: var(--secondary-color); margin-bottom: 1rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">Server Specifications</h3>
                     <ul class="server-details">
                         <li><strong>Max Players:</strong> <span>50</span></li>
-                        <li><strong>Current Players:</strong> <span>-</span></li>
+                        <li><strong>Current Players:</strong> <span id="currentPlayers">Loading...</span></li>
                         <li><strong>Uptime:</strong> <span>24/7</span></li>
                         <li><strong>Backup Frequency:</strong> <span>Daily</span></li>
                         <li><strong>Region:</strong> <span>US East</span></li>
@@ -243,6 +239,7 @@
          */
         async function fetchServerStatus() {
             const statusElement = document.getElementById('serverStatus');
+            const playersElement = document.getElementById('currentPlayers');
             if (!statusElement) return;
 
             try {
@@ -256,15 +253,54 @@
                 if (response.ok) {
                     const data = await response.json();
                     const status = data.server?.status || 'offline';
+                    const playerCount = data.server?.playerCount || 0;
+                    const maxPlayers = data.server?.maxPlayers || 50;
+                    
                     updateServerStatus(status);
+                    updatePlayerCount(playerCount, maxPlayers);
+                    
+                    // Update connection strings with IP and port
+                    const connectStringElement = document.getElementById('connectString');
+                    const serverIPElement = document.getElementById('serverIP');
+                    const gamePortElement = document.getElementById('gamePort');
+                    const queryPortElement = document.getElementById('queryPort');
+                    
+                    if (data.server?.connectString) {
+                        if (connectStringElement) {
+                            connectStringElement.textContent = data.server.connectString;
+                        }
+                        if (serverIPElement) {
+                            serverIPElement.textContent = data.server.connectString;
+                        }
+                    } else if (data.server?.ip && data.server?.gamePort) {
+                        const fullAddress = `${data.server.ip}:${data.server.gamePort}`;
+                        if (connectStringElement) {
+                            connectStringElement.textContent = fullAddress;
+                        }
+                        if (serverIPElement) {
+                            serverIPElement.textContent = fullAddress;
+                        }
+                    }
+                    
+                    // Update port display
+                    if (gamePortElement && data.server?.gamePort) {
+                        gamePortElement.textContent = data.server.gamePort;
+                    }
                 } else {
                     // API responded but with error status
                     updateServerStatus('offline');
+                    if (playersElement) {
+                        playersElement.textContent = 'Unknown';
+                    }
                 }
             } catch (error) {
                 // API unavailable or network error
                 console.log('Server status API unavailable:', error.message);
                 updateServerStatus('unknown');
+                const playersElement = document.getElementById('currentPlayers');
+                if (playersElement) {
+                    playersElement.textContent = 'Unknown';
+                }
             }
         }
 
@@ -296,17 +332,31 @@
         }
 
         /**
+         * Update the player count display
+         */
+        function updatePlayerCount(current, max) {
+            const playersElement = document.getElementById('currentPlayers');
+            if (!playersElement) return;
+
+            if (current !== null && current !== undefined) {
+                playersElement.textContent = `${current} / ${max}`;
+            } else {
+                playersElement.textContent = 'Unknown';
+            }
+        }
+
+        /**
          * Initialize server status checking
          */
         function initServerStatus() {
             // Fetch status immediately on page load
             fetchServerStatus();
 
-            // Set up auto-refresh every 30 seconds
+            // Set up auto-refresh every 12 seconds for more real-time updates
             if (statusRefreshInterval) {
                 clearInterval(statusRefreshInterval);
             }
-            statusRefreshInterval = setInterval(fetchServerStatus, 30000);
+            statusRefreshInterval = setInterval(fetchServerStatus, 12000);
         }
 
         // Initialize server status when page loads

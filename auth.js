@@ -25,6 +25,46 @@ async function checkBackendAvailable() {
   }
 }
 
+// Hard-coded admin credentials (matches backend)
+const ADMIN_EMAIL = 'admin@heartofacheron.com';
+const ADMIN_PASSWORD = 'HoA_Admin_2024!Secure#Key$987';
+
+/**
+ * Initialize admin account in mock users if it doesn't exist
+ */
+function initAdminAccount() {
+  const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+  
+  // Check if admin already exists
+  const adminExists = users.find(u => u.email === ADMIN_EMAIL.toLowerCase().trim());
+  
+  if (!adminExists) {
+    // Create admin account
+    const adminUser = {
+      userId: 'admin_user_001',
+      email: ADMIN_EMAIL.toLowerCase().trim(),
+      password: ADMIN_PASSWORD,
+      characterName: 'Admin',
+      steamId: null,
+      displayName: 'Admin',
+      createdAt: new Date().toISOString(),
+      emailVerified: true,
+      isAdmin: true
+    };
+    
+    users.push(adminUser);
+    localStorage.setItem('mockUsers', JSON.stringify(users));
+  } else {
+    // Ensure existing admin has admin flag
+    const adminIndex = users.findIndex(u => u.email === ADMIN_EMAIL.toLowerCase().trim());
+    if (adminIndex !== -1) {
+      users[adminIndex].isAdmin = true;
+      users[adminIndex].password = ADMIN_PASSWORD; // Update password in case it changed
+      localStorage.setItem('mockUsers', JSON.stringify(users));
+    }
+  }
+}
+
 /**
  * Mock authentication functions (for when backend is not available)
  */
@@ -33,10 +73,13 @@ const mockAuth = {
    * Create a mock user account
    */
   register: function(email, password, characterName, steamId, displayName) {
+    // Initialize admin account first
+    initAdminAccount();
+    
     const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
     
     // Check if user already exists
-    if (users.find(u => u.email === email)) {
+    if (users.find(u => u.email === email.toLowerCase().trim())) {
       throw new Error('Email already registered');
     }
     
@@ -49,7 +92,8 @@ const mockAuth = {
       steamId: steamId || null,
       displayName: displayName ? displayName.trim() : null,
       createdAt: new Date().toISOString(),
-      emailVerified: false
+      emailVerified: false,
+      isAdmin: false
     };
     
     users.push(newUser);
@@ -64,7 +108,8 @@ const mockAuth = {
         characterName: newUser.characterName,
         steamId: newUser.steamId,
         displayName: newUser.displayName,
-        emailVerified: newUser.emailVerified
+        emailVerified: newUser.emailVerified,
+        isAdmin: newUser.isAdmin
       }
     };
   },
@@ -73,6 +118,9 @@ const mockAuth = {
    * Login with mock credentials
    */
   login: function(email, password) {
+    // Initialize admin account first
+    initAdminAccount();
+    
     const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
     const user = users.find(u => u.email === email.toLowerCase().trim() && u.password === password);
     
@@ -99,7 +147,8 @@ const mockAuth = {
         characterName: user.characterName,
         steamId: user.steamId,
         displayName: user.displayName,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified,
+        isAdmin: user.isAdmin || false
       }
     };
   },
@@ -112,6 +161,9 @@ const mockAuth = {
     if (!session || session.token !== token) {
       return null;
     }
+    
+    // Initialize admin account first
+    initAdminAccount();
     
     const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
     const user = users.find(u => u.userId === session.userId);
@@ -129,6 +181,7 @@ const mockAuth = {
         steamId: user.steamId,
         displayName: user.displayName,
         emailVerified: user.emailVerified,
+        isAdmin: user.isAdmin || false,
         createdAt: user.createdAt,
         lastLogin: new Date().toISOString()
       }
@@ -140,12 +193,11 @@ const mockAuth = {
  * Initialize authentication system
  */
 async function initAuth() {
+  // Initialize admin account in mock system (always do this)
+  initAdminAccount();
+  
   // Check if backend is available
   USE_MOCK_AUTH = !(await checkBackendAvailable());
-  
-  if (USE_MOCK_AUTH) {
-    console.log('Backend not available, using mock authentication');
-  }
   
   // Load token from localStorage
   authToken = localStorage.getItem('authToken');
@@ -449,6 +501,7 @@ window.isAuthenticated = isAuthenticated;
 window.mockLogin = mockLogin;
 window.USE_MOCK_AUTH = () => USE_MOCK_AUTH;
 window.mockAuth = mockAuth;
+window.checkBackendAvailable = checkBackendAvailable;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

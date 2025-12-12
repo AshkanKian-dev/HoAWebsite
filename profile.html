@@ -173,7 +173,6 @@
                     }
                 } catch (backendError) {
                     // Backend not available, use mock auth
-                    console.log('Backend unavailable, using mock user data');
                     
                     // Get user from mock session
                     const mockSession = JSON.parse(localStorage.getItem('mockSession') || 'null');

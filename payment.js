@@ -138,7 +138,6 @@ function initializePaymentProviders() {
             stripe = Stripe(paymentConfig.stripe.publishableKey);
             stripeElements = stripe.elements();
             paymentConfig.stripe.initialized = true;
-            console.log('✅ Stripe initialized');
         } catch (e) {
             console.warn('Stripe initialization failed:', e);
         }
@@ -149,7 +148,6 @@ function initializePaymentProviders() {
     // Initialize PayPal (Production Mode)
     if (typeof paypal !== 'undefined' && paymentConfig.paypal.clientId && paymentConfig.paypal.clientId !== 'YOUR_PAYPAL_CLIENT_ID') {
         paymentConfig.paypal.initialized = true;
-        console.log('✅ PayPal initialized');
     } else {
         console.warn('PayPal not initialized: Missing client ID');
     }
@@ -253,7 +251,6 @@ function initializeGooglePay() {
 
 // Open payment modal
 function openPaymentModal(productData) {
-    console.log('💳 Opening payment modal for:', productData);
     
     if (!productData) {
         console.error('No product data provided');
@@ -312,7 +309,6 @@ function openPaymentModal(productData) {
     // Initialize payment method
     initializePaymentMethod('stripe');
     
-    console.log('✅ Payment modal opened');
 }
 
 // Expose function immediately when script loads
@@ -344,7 +340,6 @@ function closePaymentSuccessModal() {
 
 // Initialize payment system when DOM is ready
 function initPaymentSystem() {
-    console.log('🚀 Payment system initializing...');
     
     // Payment method buttons
     document.querySelectorAll('.payment-method-btn').forEach(btn => {
@@ -369,7 +364,6 @@ function initPaymentSystem() {
     // Initialize payment providers
     initializePaymentProviders();
     
-    console.log('✅ Payment system initialized');
 }
 
 // Run initialization when DOM is ready
@@ -985,6 +979,5 @@ window.addEventListener('load', function() {
     window.openPaymentModal = openPaymentModal;
     window.closePaymentModal = closePaymentModal;
     window.closePaymentSuccessModal = closePaymentSuccessModal;
-    console.log('✅ Payment functions exposed to window');
 });
 
