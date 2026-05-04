@@ -1,0 +1,371 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Heart of Acheron - Server Information and Connection Details">
+    <title>Server Information - Heart of Acheron</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="../assets/images/logo/logo.png" alt="Heart of Acheron Logo" onerror="this.style.display='none'">
+                    <h1>Heart of Acheron</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="forum.html" class="nav-link">Forum</a></li>
+                    <li><a href="server-info.html" class="nav-link active">Server Information</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="user-icon-container">
+                    <button class="user-icon-btn" id="userIconBtn" aria-label="User menu">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-header" id="userDropdownHeader">Account</div>
+                        <a href="login.html" class="user-dropdown-item" id="loginLink">Log In</a>
+                        <a href="register.html" class="user-dropdown-item" id="registerLink">Create Account</a>
+                        <div id="loggedInMenu" style="display: none;">
+                            <a href="profile.html" class="user-dropdown-item" id="profileLink">Profile</a>
+                            <a href="order-tracking.html" class="user-dropdown-item" id="ordersLink">Transaction History</a>
+                            <a href="#" class="user-dropdown-item" id="helpLink">Help</a>
+                            <a href="#" class="user-dropdown-item" id="resetPasswordLink">Reset Password</a>
+                            <a href="#" class="user-dropdown-item logout" id="logoutLink">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h2 class="section-title">Server Information</h2>
+                
+                <div class="server-info-grid">
+                    <div class="server-info-card">
+                        <h3>Quick Connect</h3>
+                        <p style="margin-bottom: 1rem; opacity: 0.9;">Copy this address to connect directly in Conan Exiles:</p>
+                        <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                            <code style="color: var(--secondary-color); font-size: 1.1rem;" id="connectString">roejin.com:7775</code>
+                        </div>
+                        <button class="btn btn-primary" onclick="copyToClipboard('connectString', event)">Copy Connection String</button>
+                        <p style="margin-top: 1rem; opacity: 0.8; font-size: 0.85rem; font-style: italic;">
+                            Paste this into Conan Exiles' Direct Connect field
+                        </p>
+                    </div>
+
+                    <div class="server-info-card">
+                        <h3>Connection Details</h3>
+                        <ul class="server-details">
+                            <li>
+                                <strong>Server Status:</strong>
+                                <span>
+                                    <span id="serverStatus" class="server-status offline">Checking...</span>
+                                </span>
+                            </li>
+                            <li>
+                                <strong>Server Address:</strong>
+                                <span>
+                                    <code id="serverIP">roejin.com:7775</code>
+                                    <button class="copy-btn" onclick="copyToClipboard('serverIP', event)">Copy</button>
+                                </span>
+                            </li>
+                            <li>
+                                <strong>Game Port:</strong>
+                                <span><code id="gamePort">7775</code></span>
+                            </li>
+                        </ul>
+                        <p style="margin-top: 1rem; opacity: 0.9; font-size: 0.9rem;">
+                            <strong>For Direct Connect:</strong> Use the Server Address above (IP:Port format)
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 4rem;">
+                    <h3 style="color: var(--secondary-color); font-size: 2rem; text-align: center; margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">How to Connect</h3>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">1️⃣</div>
+                            <h3>Step 1</h3>
+                            <p>Launch the game and navigate to the server browser</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">2️⃣</div>
+                            <h3>Step 2</h3>
+                            <p>Search for "Heart of Acheron" or use the direct IP address</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">3️⃣</div>
+                            <h3>Step 3</h3>
+                            <p>Click connect and join our community!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 4rem; background: rgba(26, 26, 26, 0.8); padding: 2rem; border-radius: 10px; border: 2px solid var(--border-glow);">
+                    <h3 style="color: var(--secondary-color); margin-bottom: 1rem; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);">Server Specifications</h3>
+                    <ul class="server-details">
+                        <li><strong>Max Players:</strong> <span>50</span></li>
+                        <li><strong>Current Players:</strong> <span id="currentPlayers">Loading...</span></li>
+                        <li><strong>Uptime:</strong> <span>24/7</span></li>
+                        <li><strong>Backup Frequency:</strong> <span>Daily</span></li>
+                        <li><strong>Region:</strong> <span>US East</span></li>
+                    </ul>
+                    <p style="margin-top: 1rem; opacity: 0.9; font-style: italic;">
+                        Note: Server specifications may vary. Please check with server administrators for the most current information.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Heart of Acheron. All payments are for digital goods and constitute business income. | <a href="about.html" style="color: var(--secondary-color); text-decoration: none;">About &amp; FAQs</a> | <a href="terms-of-service.html" style="color: var(--secondary-color); text-decoration: none;">Terms of Service</a> | <a href="privacy-policy.html" style="color: var(--secondary-color); text-decoration: none;">Privacy Policy</a> | <a href="refund-policy.html" style="color: var(--secondary-color); text-decoration: none;">Refund Policy</a></p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        function copyToClipboard(elementId, event) {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.error('Element not found:', elementId);
+                return;
+            }
+            
+            const text = element.textContent.trim();
+            const btn = event ? event.target : null;
+            const originalText = btn ? btn.textContent : '';
+            
+            // Function to update button visual feedback
+            function showSuccess() {
+                if (btn) {
+                    btn.textContent = 'Copied!';
+                    btn.style.background = 'rgba(0, 255, 0, 0.2)';
+                    btn.style.borderColor = '#00ff00';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'rgba(212, 175, 55, 0.2)';
+                        btn.style.borderColor = 'var(--secondary-color)';
+                    }, 2000);
+                }
+            }
+            
+            // Function to show error
+            function showError() {
+                if (btn) {
+                    const errorText = btn.textContent;
+                    btn.textContent = 'Copy Failed';
+                    btn.style.background = 'rgba(255, 0, 0, 0.2)';
+                    btn.style.borderColor = '#ff0000';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = 'rgba(212, 175, 55, 0.2)';
+                        btn.style.borderColor = 'var(--secondary-color)';
+                    }, 2000);
+                }
+            }
+            
+            // Try modern Clipboard API first (works in HTTPS/localhost)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccess();
+                }).catch(err => {
+                    // Fallback to execCommand if Clipboard API fails
+                    fallbackCopy(text, showSuccess, showError);
+                });
+            } else {
+                // Fallback to execCommand for non-secure contexts
+                fallbackCopy(text, showSuccess, showError);
+            }
+            
+            // Fallback method using document.execCommand (works in HTTP)
+            function fallbackCopy(textToCopy, onSuccess, onError) {
+                try {
+                    // Create a temporary textarea element
+                    const textarea = document.createElement('textarea');
+                    textarea.value = textToCopy;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-999999px';
+                    textarea.style.top = '-999999px';
+                    document.body.appendChild(textarea);
+                    
+                    // Select and copy
+                    textarea.focus();
+                    textarea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    
+                    if (successful) {
+                        onSuccess();
+                    } else {
+                        onError();
+                        alert('Failed to copy. Please copy manually: ' + textToCopy);
+                    }
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                    onError();
+                    alert('Failed to copy. Please copy manually: ' + textToCopy);
+                }
+            }
+        }
+
+        // Server Status Functions
+        const API_BASE = window.API_BASE_URL || 'http://localhost:3000';
+        let statusRefreshInterval = null;
+
+        /**
+         * Fetch server status from the backend API
+         */
+        async function fetchServerStatus() {
+            const statusElement = document.getElementById('serverStatus');
+            const playersElement = document.getElementById('currentPlayers');
+            if (!statusElement) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/server/status`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const status = data.server?.status || 'offline';
+                    const playerCount = data.server?.playerCount || 0;
+                    const maxPlayers = data.server?.maxPlayers || 50;
+                    
+                    updateServerStatus(status);
+                    updatePlayerCount(playerCount, maxPlayers);
+                    
+                    // Update connection strings with IP and port
+                    const connectStringElement = document.getElementById('connectString');
+                    const serverIPElement = document.getElementById('serverIP');
+                    const gamePortElement = document.getElementById('gamePort');
+                    const queryPortElement = document.getElementById('queryPort');
+                    
+                    if (data.server?.connectString) {
+                        if (connectStringElement) {
+                            connectStringElement.textContent = data.server.connectString;
+                        }
+                        if (serverIPElement) {
+                            serverIPElement.textContent = data.server.connectString;
+                        }
+                    } else if (data.server?.ip && data.server?.gamePort) {
+                        const fullAddress = `${data.server.ip}:${data.server.gamePort}`;
+                        if (connectStringElement) {
+                            connectStringElement.textContent = fullAddress;
+                        }
+                        if (serverIPElement) {
+                            serverIPElement.textContent = fullAddress;
+                        }
+                    }
+                    
+                    // Update port display
+                    if (gamePortElement && data.server?.gamePort) {
+                        gamePortElement.textContent = data.server.gamePort;
+                    }
+                } else {
+                    // API responded but with error status
+                    updateServerStatus('offline');
+                    if (playersElement) {
+                        playersElement.textContent = 'Unknown';
+                    }
+                }
+            } catch (error) {
+                // API unavailable or network error
+                console.log('Server status API unavailable:', error.message);
+                updateServerStatus('unknown');
+                const playersElement = document.getElementById('currentPlayers');
+                if (playersElement) {
+                    playersElement.textContent = 'Unknown';
+                }
+            }
+        }
+
+        /**
+         * Update the server status indicator UI
+         */
+        function updateServerStatus(status) {
+            const statusElement = document.getElementById('serverStatus');
+            if (!statusElement) return;
+
+            // Remove all status classes
+            statusElement.classList.remove('online', 'offline');
+
+            switch (status) {
+                case 'online':
+                    statusElement.textContent = 'Online';
+                    statusElement.classList.add('online');
+                    break;
+                case 'offline':
+                    statusElement.textContent = 'Offline';
+                    statusElement.classList.add('offline');
+                    break;
+                default:
+                    // Unknown/checking state
+                    statusElement.textContent = 'Checking...';
+                    statusElement.classList.add('offline');
+                    break;
+            }
+        }
+
+        /**
+         * Update the player count display
+         */
+        function updatePlayerCount(current, max) {
+            const playersElement = document.getElementById('currentPlayers');
+            if (!playersElement) return;
+
+            if (current !== null && current !== undefined) {
+                playersElement.textContent = `${current} / ${max}`;
+            } else {
+                playersElement.textContent = 'Unknown';
+            }
+        }
+
+        /**
+         * Initialize server status checking
+         */
+        function initServerStatus() {
+            // Fetch status immediately on page load
+            fetchServerStatus();
+
+            // Set up auto-refresh every 12 seconds for more real-time updates
+            if (statusRefreshInterval) {
+                clearInterval(statusRefreshInterval);
+            }
+            statusRefreshInterval = setInterval(fetchServerStatus, 12000);
+        }
+
+        // Initialize server status when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initServerStatus);
+        } else {
+            initServerStatus();
+        }
+    </script>
+</body>
+</html>
+
