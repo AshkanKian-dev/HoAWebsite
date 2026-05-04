@@ -149,9 +149,6 @@ const mockAuth = {
  * Initialize authentication system
  */
 async function initAuth() {
-  // Initialize admin account in mock system (always do this)
-  initAdminAccount();
-  
   // Check if backend is available
   USE_MOCK_AUTH = !(await checkBackendAvailable());
   
