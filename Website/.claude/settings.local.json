@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/white/Desktop/Heart_of_Acheron/Conan Exiles Game/**)",
+      "Bash(cat Website/server/.gitignore)"
+    ]
+  }
+}
